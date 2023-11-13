@@ -7,6 +7,7 @@ import {
   index,
   mysqlTableCreator,
   serial,
+  text,
   timestamp,
   varchar,
 } from "drizzle-orm/mysql-core";
@@ -55,3 +56,10 @@ export const pendingEmailVerifications = mysqlTable(
       .notNull(),
   },
 );
+
+// The table that stores auth tokens.
+export const sessions = mysqlTable("session", {
+  userId: bigint("user_id", { mode: "bigint" }).references(() => users.id),
+  accessToken: text("access_token").notNull(),
+  refreshToken: text("refresh_token").notNull(),
+});
