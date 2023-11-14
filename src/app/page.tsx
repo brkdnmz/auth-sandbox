@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "./_components/ui/button";
 
 export default function Home() {
   return (
@@ -18,6 +19,16 @@ export default function Home() {
             -based authentication w/ email verification, and demonstrate how it
             is done.
           </h3>
+          <div className="flex justify-center gap-2 pt-10 text-3xl">
+            <div title="Not implemented yet">
+              <Button className="h-min" disabled>
+                Sign in
+              </Button>
+            </div>
+            <Button variant="outline" className="h-min" asChild>
+              <Link href={"signup"}>Sign up</Link>
+            </Button>
+          </div>
         </div>
       </section>
     </main>
