@@ -3,7 +3,7 @@ import { type Config } from "drizzle-kit";
 import { env } from "~/env.mjs";
 
 export default {
-  schema: "./src/server/db/schema.ts",
+  schema: "./src/server/db/schema-mysql.ts",
   driver: "mysql2",
   dbCredentials: {
     host: env.DB_HOST,
