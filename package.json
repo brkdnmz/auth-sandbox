@@ -12,6 +12,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.3.2",
     "@planetscale/database": "^1.11.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@react-email/button": "0.0.11",
@@ -33,6 +34,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-email": "^1.9.5",
+    "react-hook-form": "^7.48.2",
     "superjson": "^1.13.1",
     "tailwind-merge": "^2.0.0",
     "tailwindcss-animate": "^1.0.7",
