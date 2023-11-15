@@ -1,3 +1,4 @@
+import { Button } from "@react-email/button";
 import { Html } from "@react-email/html";
 
 type VerificationMailProps = {
@@ -18,18 +19,18 @@ export function VerificationMail({
   userEmail,
   username,
   verificationCode,
-  redirect = "http://localhost:3000/api/auth/verify-email",
+  redirect,
 }: VerificationMailProps) {
   return (
     <Html>
-      <h1>Hi, {username},</h1>
+      <h1>Hi {username},</h1>
       <p>
-        Please click{" "}
-        <a href={`${redirect}/${verificationCode}`}>
-          <em>here</em>
-        </a>{" "}
-        to verify your email address <em>{userEmail}</em>.
+        Please click the button below to verify your email address{" "}
+        <em>{userEmail}</em>:
       </p>
+      <Button href={`${redirect}/${verificationCode}`}>
+        Verify Your Email
+      </Button>
     </Html>
   );
 }

@@ -1,7 +1,7 @@
 import { drizzle as drizzleSqlite } from "drizzle-orm/better-sqlite3";
 
 import Database from "better-sqlite3";
-import * as sqliteSchema from "./schema-mysql";
+import * as sqliteSchema from "./schema-sqlite";
 
 // "Connect" to SQLite database (which is basically a local file named `sqlite.db`)
 const sqlite = new Database("sqlite.db");

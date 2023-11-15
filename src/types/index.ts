@@ -1,4 +1,6 @@
+import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
+import { pendingEmailVerifications } from "~/server/db/schema-sqlite";
 
 export const signupFormSchema = z.object({
   email: z
@@ -20,3 +22,7 @@ export const signupFormSchema = z.object({
 });
 
 export type SignupForm = z.infer<typeof signupFormSchema>;
+
+export const verificationCodeSchema = createSelectSchema(
+  pendingEmailVerifications,
+).shape.verificationCode;

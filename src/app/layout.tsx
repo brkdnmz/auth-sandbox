@@ -1,15 +1,12 @@
 import "~/styles/globals.css";
 
-import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
 
+import Link from "next/link";
+import { FaGithub, FaHome } from "react-icons/fa";
 import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "./_components/ui/theme-provider";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+import { Toaster } from "./_components/ui/toaster";
 
 export const metadata = {
   title: "Auth Sandbox",
@@ -24,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`font-sans ${inter.variable}`}>
+      <body className="flex min-h-screen flex-col font-sans">
         <TRPCReactProvider cookies={cookies().toString()}>
           <ThemeProvider
             attribute="class"
@@ -32,7 +29,37 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <header>
+              <nav className="flex justify-between px-3 py-3">
+                <div />
+                <Link
+                  href="/"
+                  title="Return to home page"
+                  className="opacity-50 transition-opacity hover:opacity-100"
+                >
+                  <FaHome size={50} />
+                </Link>
+                <Link
+                  title="GitHub Repo"
+                  href="https://github.com/brkdnmz/auth-sandbox"
+                  target="_blank"
+                  className="opacity-50 transition-opacity hover:opacity-100"
+                >
+                  <FaGithub size={50} />
+                </Link>
+              </nav>
+            </header>
             {children}
+            <footer className="py-3 text-center">
+              <Link
+                href="https://fonts.google.com/specimen/JetBrains+Mono"
+                target="_blank"
+                className="text-slate-500 opacity-50 transition-opacity hover:opacity-100"
+              >
+                Font: JetBrains Mono
+              </Link>
+            </footer>
+            <Toaster />
           </ThemeProvider>
         </TRPCReactProvider>
       </body>

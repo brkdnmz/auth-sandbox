@@ -18,7 +18,7 @@ export function sendVerificationEmail({
   return resend.emails.send({
     from: env.RESEND_SENDER_EMAIL_ADDRESS,
     to: to,
-    subject: "Verify Your Email for Auth Sendbox",
+    subject: "Verify Your Email for Auth Sandbox",
     react: (
       <VerificationMail
         userEmail={to}
