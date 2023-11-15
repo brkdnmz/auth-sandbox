@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { api } from "~/trpc/react";
+import { signupFormSchema, type SignupForm } from "~/types";
 import { Button } from "../_components/ui/button";
 import { Card, CardTitle } from "../_components/ui/card";
 import {
@@ -15,27 +16,6 @@ import {
   FormMessage,
 } from "../_components/ui/form";
 import { Input } from "../_components/ui/input";
-
-const signupFormSchema = z.object({
-  email: z
-    .string()
-    .email("Not a valid email")
-    .max(150, "Email length must be at most 150"),
-  username: z
-    .string()
-    .min(1, "Username must not be empty")
-    .max(100, "Username length must be at most 100"),
-  fullName: z
-    .string()
-    .max(100, "Full name length must be at most 100")
-    .optional(),
-  password: z
-    .string()
-    .min(1, "Password must not be empty")
-    .max(100, "Password length must be at most 100"),
-});
-
-type SignupForm = z.infer<typeof signupFormSchema>;
 
 const fields: {
   name: keyof SignupForm;
@@ -58,8 +38,11 @@ export default function SignUpPage() {
     },
   });
 
+  const signUpMutation = api.auth.signUp.useMutation();
+
   const onSubmit = form.handleSubmit((data) => {
-    console.log(data);
+    signUpMutation.mutate(data);
+    console.log(signUpMutation.data);
   });
 
   return (
@@ -69,7 +52,7 @@ export default function SignUpPage() {
           Sign Up
         </CardTitle>
         <Form {...form}>
-          <form onSubmit={onSubmit} className="grid gap-4">
+          <form onSubmit={onSubmit} action={"/signup"} className="grid gap-4">
             {fields.map(({ name, label, placeholder }) => (
               <FormField
                 key={name}
@@ -106,7 +89,11 @@ export default function SignUpPage() {
             ))}
 
             <div className="text-center">
-              <Button type="submit" variant={"secondary"}>
+              <Button
+                type="submit"
+                variant={"secondary"}
+                disabled={signUpMutation.isLoading}
+              >
                 Submit
               </Button>
             </div>
