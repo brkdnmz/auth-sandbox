@@ -27,7 +27,7 @@ const signupFormSchema = z.object({
     .max(100, "Username length must be at most 100"),
   fullName: z
     .string()
-    .max(100, "Username length must be at most 100")
+    .max(100, "Full name length must be at most 100")
     .optional(),
   password: z
     .string()
