@@ -8,8 +8,9 @@ export const env = createEnv({
    */
   server: {
     NEXT_HOST: z.string(),
-    NEXT_PORT: z.number(),
+    NEXT_PORT: z.string(),
     DB_HOST: z.string(),
+    DB_PORT: z.string(),
     DB_USER: z.string(),
     DB_PASSWORD: z.string(),
     DB_NAME: z.string(),
@@ -37,6 +38,7 @@ export const env = createEnv({
     NEXT_HOST: process.env.NEXT_HOST,
     NEXT_PORT: process.env.NEXT_PORT,
     DB_HOST: process.env.DB_HOST,
+    DB_PORT: process.env.DB_PORT,
     DB_USER: process.env.DB_USER,
     DB_PASSWORD: process.env.DB_PASSWORD,
     DB_NAME: process.env.DB_NAME,
