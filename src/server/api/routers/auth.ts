@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { env } from "~/env.mjs";
 import { sendVerificationEmail } from "~/server/auth/email-verification";
 import { pendingEmailVerifications, users } from "~/server/db/schema-sqlite";
 import { signupFormSchema, verificationCodeSchema } from "~/types";
@@ -69,7 +70,7 @@ export const authRouter = createTRPCRouter({
         to: input.email,
         username: input.username,
         verificationCode: verificationCode,
-        redirect: "http://localhost:3000/auth/verify-email",
+        redirect: `http://${env.NEXT_HOST}:${env.NEXT_PORT}/auth/verify-email`,
       });
     }),
 
