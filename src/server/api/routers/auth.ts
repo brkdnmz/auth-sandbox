@@ -74,7 +74,7 @@ export const authRouter = createTRPCRouter({
       });
     }),
 
-  getVerifyingUser: publicProcedure
+  verify: publicProcedure
     .input(z.object({ verificationCode: verificationCodeSchema }))
     .query(async ({ ctx, input }) => {
       const pendingEmailVerification =
@@ -95,6 +95,15 @@ export const authRouter = createTRPCRouter({
           message: "Verification code is invalid",
         });
       }
+
+      // await ctx.db
+      //   .delete(pendingEmailVerifications)
+      //   .where(
+      //     eq(
+      //       pendingEmailVerifications.verificationCode,
+      //       input.verificationCode,
+      //     ),
+      //   );
 
       return pendingEmailVerification.user;
     }),

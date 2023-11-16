@@ -3,7 +3,7 @@ import "~/styles/globals.css";
 import { cookies } from "next/headers";
 
 import Link from "next/link";
-import { FaGithub, FaHome } from "react-icons/fa";
+import { FaGithub, FaHome, FaQuestion } from "react-icons/fa";
 import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "./_components/ui/theme-provider";
 import { Toaster } from "./_components/ui/toaster";
@@ -14,6 +14,15 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
+const footerLinks: { href: string; description: string }[] = [
+  { href: "https://create.t3.gg/", description: "Create T3 App" },
+  { href: "https://ui.shadcn.com", description: "shadcn/ui" },
+  {
+    href: "https://fonts.google.com/specimen/JetBrains+Mono",
+    description: "JetBrains Mono",
+  },
+];
+
 export default function RootLayout({
   children,
 }: {
@@ -21,7 +30,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="flex min-h-screen flex-col font-sans">
+      <body className="font-sans flex min-h-screen flex-col">
         <TRPCReactProvider cookies={cookies().toString()}>
           <ThemeProvider
             attribute="class"
@@ -30,8 +39,15 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <header>
-              <nav className="flex justify-between px-3 py-3">
-                <div />
+              <nav className="flex items-center justify-between px-3 py-3">
+                <div title="Not implemented yet" className="cursor-not-allowed">
+                  <button disabled className="pointer-events-none">
+                    <FaQuestion
+                      size={40}
+                      className="opacity-50 transition-opacity hover:opacity-100"
+                    />
+                  </button>
+                </div>
                 <Link
                   href="/"
                   title="Return to home page"
@@ -49,15 +65,26 @@ export default function RootLayout({
                 </Link>
               </nav>
             </header>
+
             {children}
-            <footer className="py-3 text-center">
-              <Link
-                href="https://fonts.google.com/specimen/JetBrains+Mono"
-                target="_blank"
-                className="text-slate-500 opacity-50 transition-opacity hover:opacity-100"
-              >
-                Font: JetBrains Mono
-              </Link>
+
+            <footer className="py-3">
+              <ul className="flex justify-center divide-x divide-slate-500">
+                {footerLinks.map(({ href, description }) => (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      target="_blank"
+                      className="px-5 text-slate-400 opacity-50 transition-opacity hover:opacity-100"
+                    >
+                      {description}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <h1 className="text-center text-2xl font-extrabold text-slate-500">
+                Auth Sandbox
+              </h1>
             </footer>
             <Toaster />
           </ThemeProvider>

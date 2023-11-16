@@ -6,6 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from "~/app/_components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/app/_components/ui/table";
 import { api } from "~/trpc/server";
 
 export default async function VerifyEmail({
@@ -15,7 +23,7 @@ export default async function VerifyEmail({
 }) {
   let user;
   try {
-    user = await api.auth.getVerifyingUser.query({
+    user = await api.auth.verify.query({
       verificationCode: params.verificationCode,
     });
   } catch (error) {
@@ -25,26 +33,43 @@ export default async function VerifyEmail({
     return <>An error occurred</>;
   }
 
+  const userDetails = [
+    { label: "ID", value: user.id },
+    { label: "Email", value: user.email },
+    { label: "Username", value: user.username },
+    {
+      label: "Full Name",
+      value: user.fullName ?? <span className="text-slate-500">—</span>,
+    },
+    {
+      label: "Registered At",
+      value: new Date(user.createdAt + "Z").toLocaleString(),
+    },
+  ];
+
   return (
-    <Card className="p-8">
+    <Card className="p-4">
       <CardHeader>
-        <CardTitle>Verification Details</CardTitle>
-        <CardDescription>
-          See the user details, and verify using the button below.
-        </CardDescription>
+        <CardTitle>User Verified!</CardTitle>
+        <CardDescription>The user details are shown below.</CardDescription>
       </CardHeader>
       <CardContent>
-        <h3 className="text-lg font-medium">User Information</h3>
-        <div className="whitespace-pre font-mono">
-          {JSON.stringify(
-            {
-              ...user,
-              createdAt: new Date(user.createdAt + "Z").toLocaleString(),
-            },
-            null,
-            2,
-          )}
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Property</TableHead>
+              <TableHead>Info</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {userDetails.map(({ label, value }) => (
+              <TableRow key={label}>
+                <TableCell>{label}</TableCell>
+                <TableCell>{value}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );

@@ -20,7 +20,7 @@ export default function Home() {
           things are done.
         </h3>
         <div className="flex justify-center gap-10 pt-10 text-3xl">
-          <div title="Not implemented yet">
+          <div title="Not implemented yet" className="cursor-not-allowed">
             <Button className="h-min" disabled>
               Sign in
             </Button>

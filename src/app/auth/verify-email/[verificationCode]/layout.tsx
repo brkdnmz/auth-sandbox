@@ -10,10 +10,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="grid grid-cols-3">
-      <section className="col-start-2 flex min-h-screen items-center justify-center">
-        {children}
-      </section>
+    <main className="grid grow grid-cols-3 place-items-center">
+      <section className="col-start-2">{children}</section>
     </main>
   );
 }

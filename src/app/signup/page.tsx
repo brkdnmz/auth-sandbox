@@ -2,7 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TRPCClientError } from "@trpc/client";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { FaCheck } from "react-icons/fa";
 import { api } from "~/trpc/react";
 import { signupFormSchema, type SignupForm } from "~/types";
 import { Button } from "../_components/ui/button";
@@ -31,7 +34,8 @@ const fields: readonly {
 ] as const;
 
 export default function SignUpPage() {
-  const { toast, toasts } = useToast();
+  const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<SignupForm>({
     resolver: zodResolver(signupFormSchema),
@@ -46,7 +50,16 @@ export default function SignUpPage() {
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      const res = await signUpMutation.mutateAsync(data);
+      await signUpMutation.mutateAsync(data);
+      toast({
+        title: "Success",
+        description: `A verification email has been sent to ${
+          form.getValues().email
+        }`,
+      });
+      setTimeout(() => {
+        void router.push("/");
+      }, 1000);
     } catch (error) {
       toast({
         title: "Error",
@@ -103,9 +116,15 @@ export default function SignUpPage() {
             <Button
               type="submit"
               variant={"secondary"}
-              disabled={signUpMutation.isLoading}
+              disabled={signUpMutation.isLoading || signUpMutation.isSuccess}
             >
-              Submit
+              {signUpMutation.isLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : !signUpMutation.isSuccess ? (
+                "Submit"
+              ) : (
+                <FaCheck />
+              )}
             </Button>
           </div>
         </form>

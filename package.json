@@ -7,13 +7,14 @@
     "db:push-mysql": "dotenv -- drizzle-kit push:mysql --config=drizzle.config-mysql.ts",
     "db:push-sqlite": "drizzle-kit push:sqlite --config=drizzle.config-sqlite.ts",
     "db:studio": "dotenv -- drizzle-kit studio --config=drizzle.config-sqlite.ts",
-    "dev": "next dev",
+    "dev": "next dev -p",
     "lint": "next lint",
     "start": "next start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
     "@planetscale/database": "^1.11.0",
+    "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-toast": "^1.1.5",
