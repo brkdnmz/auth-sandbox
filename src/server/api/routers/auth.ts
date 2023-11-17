@@ -5,13 +5,18 @@ import { z } from "zod";
 import { env } from "~/env.mjs";
 import { sendVerificationEmail } from "~/server/auth/email-verification";
 import { pendingEmailVerifications, users } from "~/server/db/schema-sqlite";
-import { signupFormSchema, verificationCodeSchema } from "~/types";
+import {
+  signinFormSchema,
+  signupFormSchema,
+  verificationCodeSchema,
+} from "~/types";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 // Possible authentication errors are defined with an enum.
 export enum AuthError {
   SIGNUP_EMAIL_REGISTERED = "SIGNUP_EMAIL_REGISTERED",
   SIGNUP_INVALID_EMAIL_VERIFICATION_CODE = "SIGNUP_INVALID_VERIFICATION_CODE",
+  SIGNIN_INVALID_CREDENTIALS = "SIGNIN_INVALID_CREDENTIALS",
 }
 
 // Authentication API that manages signins and signups.
@@ -144,5 +149,28 @@ export const authRouter = createTRPCRouter({
 
       // Return the user that has been verified.
       return pendingEmailVerification.user;
+    }),
+  signin: publicProcedure
+    .input(signinFormSchema)
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.query.users.findFirst({
+        where: (users, { and, or, eq }) =>
+          and(
+            or(
+              eq(users.email, input.emailOrUsername),
+              eq(users.username, input.emailOrUsername),
+            ),
+            eq(users.password, input.password),
+          ),
+      });
+
+      if (!user)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          cause: AuthError.SIGNIN_INVALID_CREDENTIALS,
+          message: "Invalid email/username or password",
+        });
+
+      return user;
     }),
 });

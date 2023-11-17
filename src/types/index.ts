@@ -23,6 +23,15 @@ export const signupFormSchema = z.object({
 
 export type SignupForm = z.infer<typeof signupFormSchema>;
 
+export const signinFormSchema = z.object({
+  emailOrUsername: signupFormSchema.shape.email.or(
+    signupFormSchema.shape.username,
+  ),
+  password: signupFormSchema.shape.password,
+});
+
+export type SigninForm = z.infer<typeof signinFormSchema>;
+
 export const verificationCodeSchema = createSelectSchema(
   pendingEmailVerifications,
 ).shape.verificationCode;
