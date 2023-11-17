@@ -119,15 +119,28 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      // The code is valid, so, delete the pending verification.
-      await ctx.db
-        .delete(pendingEmailVerifications)
-        .where(
-          eq(
-            pendingEmailVerifications.verificationCode,
-            input.verificationCode,
-          ),
-        );
+      const verifiedUser = pendingEmailVerification.user;
+
+      // The code is valid, so, verify the user and delete the pending verification.
+      // Multiple updates -> transaction!
+      await ctx.db.transaction(async (tx) => {
+        // Verify the user.
+        // Either pendingEmailVerification.userId or verifiedUser.id can be used.
+        await tx
+          .update(users)
+          .set({ isVerified: true })
+          .where(eq(users.id, verifiedUser.id));
+
+        // Delete the pending verification.
+        await tx
+          .delete(pendingEmailVerifications)
+          .where(
+            eq(
+              pendingEmailVerifications.verificationCode,
+              input.verificationCode,
+            ),
+          );
+      });
 
       // Return the user that has been verified.
       return pendingEmailVerification.user;

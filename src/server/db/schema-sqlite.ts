@@ -13,6 +13,10 @@ export const users = sqliteTable("user", {
   createdAt: text("created_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
+
+  // Actually, this is a derived state -- whether a user is verified can be checked by querying the `pending_email_verification` table.
+  // However, it feels convenient to add the state to the `user` table also.
+  isVerified: int("is_verified", { mode: "boolean" }).default(false),
 });
 
 // A table containing (user ID, email verification code) pairs.
