@@ -7,7 +7,7 @@
     "db:push-mysql": "dotenv -- drizzle-kit push:mysql --config=drizzle.config-mysql.ts",
     "db:push-sqlite": "drizzle-kit push:sqlite --config=drizzle.config-sqlite.ts",
     "db:studio": "dotenv -- drizzle-kit studio --config=drizzle.config-sqlite.ts",
-    "dev": "next dev -p",
+    "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
   },
