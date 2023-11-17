@@ -76,7 +76,7 @@ export default function SignUpPage() {
     <Card className="grow px-8 py-4">
       <CardTitle className="text-center text-4xl font-bold">Sign Up</CardTitle>
       <Form {...form}>
-        <form onSubmit={onSubmit} action={"/signup"} className="grid gap-4">
+        <form onSubmit={onSubmit} className="grid gap-4">
           {fields.map(({ name, label, placeholder }) => (
             <FormField
               key={name}
