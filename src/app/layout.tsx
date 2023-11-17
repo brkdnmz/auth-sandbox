@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { FaGithub, FaHome, FaQuestion } from "react-icons/fa";
 import { TRPCReactProvider } from "~/trpc/react";
+import { NotImplemented } from "./_components/not-implemented";
 import { ThemeProvider } from "./_components/ui/theme-provider";
 import { Toaster } from "./_components/ui/toaster";
 
@@ -40,14 +41,14 @@ export default function RootLayout({
           >
             <header>
               <nav className="flex items-center justify-between px-3 py-3">
-                <div title="Not implemented yet" className="cursor-not-allowed">
-                  <button disabled className="pointer-events-none">
+                <NotImplemented>
+                  <button disabled>
                     <FaQuestion
                       size={40}
                       className="opacity-50 transition-opacity hover:opacity-100"
                     />
                   </button>
-                </div>
+                </NotImplemented>
                 <Link
                   href="/"
                   title="Return to home page"

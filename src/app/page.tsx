@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NotImplemented } from "./_components/not-implemented";
 import { Button } from "./_components/ui/button";
 
 export default function Home() {
@@ -20,11 +21,11 @@ export default function Home() {
           things are done.
         </h3>
         <div className="flex justify-center gap-10 pt-10 text-3xl">
-          <div title="Not implemented yet" className="cursor-not-allowed">
+          <NotImplemented>
             <Button className="h-min" disabled>
               Sign in
             </Button>
-          </div>
+          </NotImplemented>
           <Button variant="outline" className="h-min" asChild>
             <Link href={"signup"}>Sign up</Link>
           </Button>
