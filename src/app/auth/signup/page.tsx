@@ -6,10 +6,8 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { FaCheck } from "react-icons/fa";
-import { api } from "~/trpc/react";
-import { signupFormSchema, type SignupForm } from "~/types";
-import { Button } from "../_components/ui/button";
-import { Card, CardTitle } from "../_components/ui/card";
+import { Button } from "~/app/_components/ui/button";
+import { Card, CardTitle } from "~/app/_components/ui/card";
 import {
   Form,
   FormControl,
@@ -18,9 +16,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../_components/ui/form";
-import { Input } from "../_components/ui/input";
-import { useToast } from "../_components/ui/use-toast";
+} from "~/app/_components/ui/form";
+import { Input } from "~/app/_components/ui/input";
+import { useToast } from "~/app/_components/ui/use-toast";
+import { api } from "~/trpc/react";
+import { signupFormSchema, type SignupForm } from "~/types";
 
 const fields: readonly {
   name: keyof SignupForm;

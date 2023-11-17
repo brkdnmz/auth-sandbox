@@ -27,7 +27,7 @@ export default function Home() {
             </Button>
           </NotImplemented>
           <Button variant="outline" className="h-min" asChild>
-            <Link href={"signup"}>Sign up</Link>
+            <Link href="auth/signup">Sign up</Link>
           </Button>
         </div>
       </section>
