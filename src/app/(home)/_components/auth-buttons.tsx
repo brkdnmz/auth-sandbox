@@ -17,10 +17,10 @@ export function AuthButtons({ currentUser }: AuthButtonsProps) {
       {!currentUser && (
         <>
           <Button className="h-min" asChild>
-            <Link href="auth/signin">Sign In</Link>
+            <Link href="auth/sign-in">Sign In</Link>
           </Button>
           <Button variant="outline" className="h-min" asChild>
-            <Link href="auth/signup">Sign Up</Link>
+            <Link href="auth/sign-up">Sign Up</Link>
           </Button>
         </>
       )}
