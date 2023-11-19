@@ -4,15 +4,25 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { env } from "~/env.mjs";
 import { sendVerificationEmail } from "~/server/auth/email-verification";
-import { pendingEmailVerifications, users } from "~/server/db/schema-sqlite";
+import { generateJwt } from "~/server/auth/jwt";
+import {
+  pendingEmailVerifications,
+  sessions,
+  users,
+} from "~/server/db/schema-sqlite";
 import {
   signinFormSchema,
   signupFormSchema,
   verificationCodeSchema,
 } from "~/types";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import {
+  authorizedProcedure,
+  createTRPCRouter,
+  publicProcedure,
+} from "../trpc";
 
 // Possible authentication errors are defined with an enum.
+//? Okay, maybe this is not so crucial after all, I don't know :D
 export enum AuthError {
   SIGNUP_EMAIL_REGISTERED = "SIGNUP_EMAIL_REGISTERED",
   SIGNUP_INVALID_EMAIL_VERIFICATION_CODE = "SIGNUP_INVALID_VERIFICATION_CODE",
@@ -98,8 +108,8 @@ export const authRouter = createTRPCRouter({
       });
     }),
 
-  // This route verifies the corresponding user with the provided verification code.
-  verify: publicProcedure
+  // This route verifies the corresponding user's email with the provided verification code.
+  verifyEmail: publicProcedure
     .input(z.object({ verificationCode: verificationCodeSchema }))
     .query(async ({ ctx, input }) => {
       // Firstly, find the pending verification corresponding to the provided verification code.
@@ -150,9 +160,12 @@ export const authRouter = createTRPCRouter({
       // Return the user that has been verified.
       return pendingEmailVerification.user;
     }),
-  signin: publicProcedure
+
+  // The route that handles signing in.
+  signIn: publicProcedure
     .input(signinFormSchema)
     .mutation(async ({ ctx, input }) => {
+      // Find the user with the given credentials.
       const user = await ctx.db.query.users.findFirst({
         where: (users, { and, or, eq }) =>
           and(
@@ -164,6 +177,7 @@ export const authRouter = createTRPCRouter({
           ),
       });
 
+      // Such user does not exist, may not sign in.
       if (!user)
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -171,6 +185,31 @@ export const authRouter = createTRPCRouter({
           message: "Invalid email/username or password",
         });
 
-      return user;
+      // Generate the access and refresh tokens, and return them.
+      //! Refresh token is currently unused in the application.
+      const accessToken = generateJwt(user, 1 * 60); // 1 minutes
+      const refreshToken = generateJwt(user, 30 * 24 * 60 * 60); // 1 month
+
+      // Record the session into the database.
+      // TODO A signed-in user should not be able to sign in again.
+      await ctx.db
+        .insert(sessions)
+        .values({ accessToken, refreshToken, userId: user.id });
+
+      return { accessToken, refreshToken };
     }),
+
+  // The route that handles signing out.
+  signOut: authorizedProcedure.mutation(async ({ ctx }) => {
+    // Just delete the corresponding session from the database, that's it.
+    // Thanks to that, the same access token cannot be used to authorize.
+    return ctx.db
+      .delete(sessions)
+      .where(eq(sessions.userId, ctx.accessToken.user.id));
+  }),
+
+  // Get the session details (current user).
+  getSession: authorizedProcedure.query(({ ctx }) => {
+    return ctx.accessToken;
+  }),
 });

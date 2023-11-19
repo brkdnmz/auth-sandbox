@@ -6,12 +6,16 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { TRPCError, initTRPC } from "@trpc/server";
+import { cookies } from "next/headers";
 import { type NextRequest } from "next/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
+import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
+import { decodeJwt } from "../auth/jwt";
+import { sessions } from "../db/schema-sqlite";
 
 /**
  * 1. CONTEXT
@@ -92,6 +96,57 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
  */
 export const createTRPCRouter = t.router;
 
+export const middleware = t.middleware;
+
+// The middleware that verifies the access token, and determines whether the user is authorized (signed in).
+const isAuthorized = middleware(async ({ ctx, next }) => {
+  // Firstly, get the access token provided via cookies.
+  const accessToken = cookies().get("access-token")?.value;
+
+  // The token must be provided. If not, it means the user is not authorized.
+  if (!accessToken)
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Access token not provided",
+    });
+
+  // Find the session with the provided token.
+  const session = await ctx.db.query.sessions.findFirst({
+    where: (sessions, { eq }) => eq(sessions.accessToken, accessToken),
+  });
+
+  // This is the second reason to block: no session with that token.
+  if (!session)
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Invalid access token",
+    });
+
+  /*
+    Now for the third and the final check, check the expiration date.
+    If the token has been expired, block the user access.
+  */
+
+  // Decode the token to get the expiration date.
+  const decodedToken = decodeJwt(session.accessToken);
+
+  // Check if the expiration date has past.
+  // If so, delete the session from the database. Because, why not?
+  if (!decodedToken || decodedToken.exp <= Math.floor(Date.now() / 1000)) {
+    await ctx.db
+      .delete(sessions)
+      .where(eq(sessions.accessToken, session.accessToken));
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Access token expired",
+    });
+  }
+
+  // Everything is fine. Redirect to the actual route while adding the access token to the context.
+  // Note: It's actually so dope that the context can be modified!
+  return next({ ctx: { ...ctx, accessToken: decodedToken } });
+});
+
 /**
  * Public (unauthenticated) procedure
  *
@@ -100,3 +155,6 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
+
+// A procedure that requires the user to be authorized.
+export const authorizedProcedure = publicProcedure.use(isAuthorized);

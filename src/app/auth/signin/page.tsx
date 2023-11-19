@@ -11,7 +11,6 @@ import { Card, CardTitle } from "~/app/_components/ui/card";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,6 +18,7 @@ import {
 } from "~/app/_components/ui/form";
 import { Input } from "~/app/_components/ui/input";
 import { useToast } from "~/app/_components/ui/use-toast";
+import { useAuthStore } from "~/store/auth-store";
 import { api } from "~/trpc/react";
 import { signinFormSchema, type SigninForm } from "~/types";
 
@@ -38,16 +38,25 @@ const fields: readonly {
 export default function SignInPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const {
+    actions: { handleTokens },
+  } = useAuthStore();
 
   const form = useForm<SigninForm>({
     resolver: zodResolver(signinFormSchema),
+    defaultValues: {
+      emailOrUsername: "",
+      password: "",
+    },
   });
 
-  const signInMutation = api.auth.signin.useMutation();
+  const signInMutation = api.auth.signIn.useMutation();
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await signInMutation.mutateAsync(data);
+      const { accessToken, refreshToken } =
+        await signInMutation.mutateAsync(data);
+      handleTokens(accessToken, refreshToken);
       toast({
         title: "Success",
         description: "Redirecting to home page",
@@ -55,7 +64,7 @@ export default function SignInPage() {
       });
       setTimeout(() => {
         void router.push("/");
-      }, 1000);
+      }, 500);
     } catch (error) {
       toast({
         title: "Error",
@@ -89,9 +98,6 @@ export default function SignInPage() {
                       type={name === "password" ? "password" : "text"}
                     />
                   </FormControl>
-                  <FormDescription>
-                    {/* This is your public display name. */}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

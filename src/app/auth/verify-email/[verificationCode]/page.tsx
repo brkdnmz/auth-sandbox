@@ -23,7 +23,7 @@ export default async function VerifyEmail({
 }) {
   let user;
   try {
-    user = await api.auth.verify.query({
+    user = await api.auth.verifyEmail.query({
       verificationCode: params.verificationCode,
     });
   } catch (error) {

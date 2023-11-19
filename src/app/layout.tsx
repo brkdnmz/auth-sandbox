@@ -5,7 +5,9 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { FaGithub, FaHome, FaQuestion } from "react-icons/fa";
 import { TRPCReactProvider } from "~/trpc/react";
+import { AuthProvider } from "./_components/auth-provider";
 import { NotImplemented } from "./_components/not-implemented";
+import { SessionTimer } from "./_components/session-timer";
 import { ThemeProvider } from "./_components/ui/theme-provider";
 import { Toaster } from "./_components/ui/toaster";
 
@@ -27,6 +29,7 @@ const footerLinks: { href: string; description: string }[] = [
   },
 ];
 
+// This is the root layout. Everything except `children` is the same for all pages.
 export default function RootLayout({
   children,
 }: {
@@ -42,55 +45,61 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <header>
-              <nav className="flex items-center justify-between px-3 py-3">
-                <NotImplemented>
-                  <button disabled>
-                    <FaQuestion
-                      size={40}
-                      className="opacity-50 transition-opacity hover:opacity-100"
-                    />
-                  </button>
-                </NotImplemented>
-                <Link
-                  href="/"
-                  title="Return to home page"
-                  className="opacity-50 transition-opacity hover:opacity-100"
-                >
-                  <FaHome size={50} />
-                </Link>
-                <Link
-                  title="GitHub Repo"
-                  href="https://github.com/brkdnmz/auth-sandbox"
-                  target="_blank"
-                  className="opacity-50 transition-opacity hover:opacity-100"
-                >
-                  <FaGithub size={50} />
-                </Link>
-              </nav>
-            </header>
+            <AuthProvider>
+              <header>
+                <nav className="flex items-center justify-between px-3 py-3">
+                  <NotImplemented>
+                    <button disabled>
+                      <FaQuestion
+                        size={40}
+                        className="opacity-50 transition-opacity hover:opacity-100"
+                      />
+                    </button>
+                  </NotImplemented>
 
-            {children}
+                  <Link
+                    href="/"
+                    title="Return to home page"
+                    className="opacity-50 transition-opacity hover:opacity-100"
+                  >
+                    <FaHome size={50} />
+                  </Link>
 
-            <footer className="py-3">
-              <ul className="flex justify-center divide-x divide-slate-500">
-                {footerLinks.map(({ href, description }) => (
-                  <li key={href}>
-                    <Link
-                      href={href}
-                      target="_blank"
-                      className="px-5 text-slate-400 opacity-50 transition-opacity hover:opacity-100"
-                    >
-                      {description}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <h1 className="text-center text-2xl font-extrabold text-slate-500">
-                Auth Sandbox
-              </h1>
-            </footer>
-            <Toaster />
+                  <Link
+                    title="GitHub Repo"
+                    href="https://github.com/brkdnmz/auth-sandbox"
+                    target="_blank"
+                    className="opacity-50 transition-opacity hover:opacity-100"
+                  >
+                    <FaGithub size={50} />
+                  </Link>
+                </nav>
+              </header>
+
+              <SessionTimer className="text-center" />
+
+              {children}
+
+              <footer className="py-3">
+                <ul className="flex justify-center divide-x divide-slate-500">
+                  {footerLinks.map(({ href, description }) => (
+                    <li key={href}>
+                      <Link
+                        href={href}
+                        target="_blank"
+                        className="px-5 text-slate-400 opacity-50 transition-opacity hover:opacity-100"
+                      >
+                        {description}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <h1 className="text-center text-2xl font-extrabold text-slate-500">
+                  Auth Sandbox
+                </h1>
+              </footer>
+              <Toaster />
+            </AuthProvider>
           </ThemeProvider>
         </TRPCReactProvider>
       </body>

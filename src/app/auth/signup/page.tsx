@@ -56,6 +56,7 @@ export default function SignUpPage() {
         description: `A verification email has been sent to ${
           form.getValues().email
         }`,
+        duration: 3000,
       });
       setTimeout(() => {
         void router.push("/");
@@ -98,8 +99,8 @@ export default function SignUpPage() {
                         name === "password"
                           ? "password"
                           : name === "email"
-                          ? "email"
-                          : "text"
+                            ? "email"
+                            : "text"
                       }
                     />
                   </FormControl>

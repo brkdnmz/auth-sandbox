@@ -1,6 +1,6 @@
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { pendingEmailVerifications } from "~/server/db/schema-sqlite";
+import { pendingEmailVerifications, users } from "~/server/db/schema-sqlite";
 
 export const signupFormSchema = z.object({
   email: z
@@ -32,6 +32,24 @@ export const signinFormSchema = z.object({
 
 export type SigninForm = z.infer<typeof signinFormSchema>;
 
+export type User = typeof users.$inferSelect;
+
 export const verificationCodeSchema = createSelectSchema(
   pendingEmailVerifications,
 ).shape.verificationCode;
+
+export const sessionUserSchema = createSelectSchema(users).pick({
+  id: true,
+  email: true,
+  username: true,
+  fullName: true,
+  isVerified: true,
+});
+
+export const authTokenSchema = z.object({
+  iat: z.number(),
+  exp: z.number(),
+  user: sessionUserSchema,
+});
+
+export type SessionUser = z.infer<typeof sessionUserSchema>;
