@@ -8,7 +8,7 @@ import Introduction from "./_components/introduction";
 
 // The home page component.
 export default function Home() {
-  const { isLoading } = useSession();
+  const { currentUser, isLoading } = useSession();
 
   return (
     <main className="grid grow grid-cols-3 items-center">
@@ -28,8 +28,8 @@ export default function Home() {
               animate={{ opacity: 1 }}
               key="loaded"
             >
-              <Introduction />
-              <AuthButtons />
+              <Introduction currentUser={currentUser} />
+              <AuthButtons currentUser={currentUser} />
             </motion.div>
           )}
         </AnimatePresence>

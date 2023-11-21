@@ -210,6 +210,6 @@ export const authRouter = createTRPCRouter({
 
   // Get the session details (current user).
   getSession: authorizedProcedure.query(({ ctx }) => {
-    return ctx.accessToken;
+    return ctx.accessToken.user;
   }),
 });
