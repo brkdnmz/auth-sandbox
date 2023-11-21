@@ -187,7 +187,7 @@ export const authRouter = createTRPCRouter({
 
       // Generate the access and refresh tokens, and return them.
       //! Refresh token is currently unused in the application.
-      const accessToken = generateJwt(user, 1 * 60); // 1 minutes
+      const accessToken = generateJwt(user, env.ACCESS_TOKEN_DURATION);
       const refreshToken = generateJwt(user, 30 * 24 * 60 * 60); // 1 month
 
       // Record the session into the database.
