@@ -35,7 +35,9 @@ export const pendingEmailVerifications = sqliteTable(
 
 // The table that stores auth tokens.
 export const sessions = sqliteTable("session", {
-  userId: int("user_id").references(() => users.id),
+  userId: int("user_id")
+    .references(() => users.id)
+    .notNull(),
   accessToken: text("access_token").notNull(),
   refreshToken: text("refresh_token").notNull(),
 });
@@ -43,6 +45,7 @@ export const sessions = sqliteTable("session", {
 // Relations of `users`
 export const usersRelations = relations(users, ({ one }) => ({
   pendingEmailVerification: one(pendingEmailVerifications), // One-to-one relation with `pending_email_verifications`
+  session: one(sessions), // One-to-one relation with `sessions`
 }));
 
 // Relations of `pending_email_verifications`
@@ -55,3 +58,10 @@ export const pendingEmailVerificationsRelations = relations(
     }), // One-to-one relation with `users`
   }),
 );
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }), // One-to-one relation with `users`
+}));

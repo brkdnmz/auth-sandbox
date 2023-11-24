@@ -53,3 +53,4 @@ export const authTokenSchema = z.object({
 });
 
 export type SessionUser = z.infer<typeof sessionUserSchema>;
+export type AuthToken = z.infer<typeof authTokenSchema>;

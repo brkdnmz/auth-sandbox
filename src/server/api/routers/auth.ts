@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { env } from "~/env.mjs";
 import { sendVerificationEmail } from "~/server/auth/email-verification";
-import { generateJwt } from "~/server/auth/jwt";
+import { generateJwt, isTokenExpired } from "~/server/auth/jwt";
 import {
   pendingEmailVerifications,
   sessions,
@@ -19,6 +19,7 @@ import {
   authorizedProcedure,
   createTRPCRouter,
   publicProcedure,
+  publicProcedureWithTokens,
 } from "../trpc";
 
 // Possible authentication errors are defined with an enum.
@@ -203,13 +204,53 @@ export const authRouter = createTRPCRouter({
   signOut: authorizedProcedure.mutation(async ({ ctx }) => {
     // Just delete the corresponding session from the database, that's it.
     // Thanks to that, the same access token cannot be used to authorize.
-    return ctx.db
-      .delete(sessions)
-      .where(eq(sessions.userId, ctx.user.id));
+    return ctx.db.delete(sessions).where(eq(sessions.userId, ctx.user.id));
   }),
 
   // Get the session details (current user).
   getSession: authorizedProcedure.query(({ ctx }) => {
     return ctx.user;
+  }),
+
+  refreshSession: publicProcedureWithTokens.mutation(async ({ ctx }) => {
+    const { raw: rawRefreshToken, decoded: decodedRefreshToken } =
+      ctx.refreshToken;
+
+    if (!rawRefreshToken) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Refresh token not provided",
+      });
+    }
+
+    // Find the session with the provided refresh token.
+    const session = await ctx.db.query.sessions.findFirst({
+      where: (sessions, { eq }) => eq(sessions.refreshToken, rawRefreshToken),
+      with: { user: true },
+    });
+
+    if (!session) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Invalid refresh token",
+      });
+    }
+
+    if (!decodedRefreshToken || isTokenExpired(decodedRefreshToken)) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Refresh token expired",
+      });
+    }
+
+    const newAccessToken = generateJwt(session.user, env.ACCESS_TOKEN_DURATION);
+    const newRefreshToken = generateJwt(session.user, 30 * 24 * 60 * 60); // 1 month
+
+    await ctx.db
+      .update(sessions)
+      .set({ accessToken: newAccessToken, refreshToken: newRefreshToken })
+      .where(eq(sessions.userId, session.userId));
+
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }),
 });

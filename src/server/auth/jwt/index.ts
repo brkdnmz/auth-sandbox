@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { authTokenSchema, type User } from "~/types";
+import { AuthToken, authTokenSchema, type User } from "~/types";
 
 /**
  * Generates a JWT containing the user information.
@@ -35,4 +35,8 @@ export function decodeJwt(token: string) {
   const decodedToken = jwt.decode(token, { json: true });
   if (!decodedToken) return null;
   return authTokenSchema.parse(decodedToken);
+}
+
+export function isTokenExpired(token: AuthToken){
+  return token.exp <= Math.floor(Date.now() / 1000);
 }

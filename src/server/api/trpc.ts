@@ -12,10 +12,8 @@ import { type NextRequest } from "next/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
-import { decodeJwt } from "../auth/jwt";
-import { sessions } from "../db/schema-sqlite";
+import { decodeJwt, isTokenExpired } from "../auth/jwt";
 
 /**
  * 1. CONTEXT
@@ -142,11 +140,7 @@ const authorizedMiddleware = decodeTokensMiddleware.unstable_pipe(async ({ ctx, 
   */
 
   // Check if the expiration date has past.
-  // If so, delete the session from the database. Because, why not?
-  if (!decodedAccessToken || decodedAccessToken.exp <= Math.floor(Date.now() / 1000)) {
-    await ctx.db
-      .delete(sessions)
-      .where(eq(sessions.accessToken, session.accessToken));
+  if (!decodedAccessToken || isTokenExpired(decodedAccessToken)) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "Access token expired",
@@ -166,6 +160,9 @@ const authorizedMiddleware = decodeTokensMiddleware.unstable_pipe(async ({ ctx, 
  * are logged in.
  */
 export const publicProcedure = t.procedure;
+
+// Decode tokens and pass them to the context beforehand.
+export const publicProcedureWithTokens = publicProcedure.use(decodeTokensMiddleware);
 
 // A procedure that requires the user to be authorized.
 export const authorizedProcedure = publicProcedure.use(authorizedMiddleware);
