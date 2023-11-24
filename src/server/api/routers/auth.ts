@@ -205,11 +205,11 @@ export const authRouter = createTRPCRouter({
     // Thanks to that, the same access token cannot be used to authorize.
     return ctx.db
       .delete(sessions)
-      .where(eq(sessions.userId, ctx.accessToken.user.id));
+      .where(eq(sessions.userId, ctx.user.id));
   }),
 
   // Get the session details (current user).
   getSession: authorizedProcedure.query(({ ctx }) => {
-    return ctx.accessToken.user;
+    return ctx.user;
   }),
 });

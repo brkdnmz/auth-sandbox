@@ -98,13 +98,27 @@ export const createTRPCRouter = t.router;
 
 export const middleware = t.middleware;
 
-// The middleware that verifies the access token, and determines whether the user is authorized (signed in).
-const isAuthorized = middleware(async ({ ctx, next }) => {
-  // Firstly, get the access token provided via cookies.
+// The middleware that gets the auth tokens from the cookies, and decodes and adds them to the context.
+const decodeTokensMiddleware = middleware(({ctx, next}) => {
+  // Get auth tokens from the cookies.
   const accessToken = cookies().get("access-token")?.value;
+  const refreshToken = cookies().get("refresh-token")?.value;
+
+  // Decode the tokens.
+  // Note that they might not be present in the cookies. In that case, their decoded versions will be `null`.
+  const decodedAccessToken = decodeJwt(accessToken ?? "");
+  const decodedRefreshToken = decodeJwt(refreshToken ?? "");
+  
+  // Add the decoded tokens into the context, and continue with the next middleware/prodecure.
+  return next({ctx: {...ctx, accessToken: {raw: accessToken, decoded: decodedAccessToken}, refreshToken: {raw: refreshToken, decoded: decodedRefreshToken} }})
+})
+
+// The middleware that verifies the access token, and determines whether the user is authorized (signed in).
+const authorizedMiddleware = decodeTokensMiddleware.unstable_pipe(async ({ ctx, next }) => {
+  const {raw: rawAccessToken, decoded: decodedAccessToken} = ctx.accessToken;
 
   // The token must be provided. If not, it means the user is not authorized.
-  if (!accessToken)
+  if (!rawAccessToken)
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "Access token not provided",
@@ -112,7 +126,7 @@ const isAuthorized = middleware(async ({ ctx, next }) => {
 
   // Find the session with the provided token.
   const session = await ctx.db.query.sessions.findFirst({
-    where: (sessions, { eq }) => eq(sessions.accessToken, accessToken),
+    where: (sessions, { eq }) => eq(sessions.accessToken, rawAccessToken),
   });
 
   // This is the second reason to block: no session with that token.
@@ -127,12 +141,9 @@ const isAuthorized = middleware(async ({ ctx, next }) => {
     If the token has been expired, block the user access.
   */
 
-  // Decode the token to get the expiration date.
-  const decodedToken = decodeJwt(session.accessToken);
-
   // Check if the expiration date has past.
   // If so, delete the session from the database. Because, why not?
-  if (!decodedToken || decodedToken.exp <= Math.floor(Date.now() / 1000)) {
+  if (!decodedAccessToken || decodedAccessToken.exp <= Math.floor(Date.now() / 1000)) {
     await ctx.db
       .delete(sessions)
       .where(eq(sessions.accessToken, session.accessToken));
@@ -144,7 +155,7 @@ const isAuthorized = middleware(async ({ ctx, next }) => {
 
   // Everything is fine. Redirect to the actual route while adding the access token to the context.
   // Note: It's actually so dope that the context can be modified!
-  return next({ ctx: { ...ctx, accessToken: decodedToken } });
+  return next({ctx: {user: decodedAccessToken.user}});
 });
 
 /**
@@ -157,4 +168,4 @@ const isAuthorized = middleware(async ({ ctx, next }) => {
 export const publicProcedure = t.procedure;
 
 // A procedure that requires the user to be authorized.
-export const authorizedProcedure = publicProcedure.use(isAuthorized);
+export const authorizedProcedure = publicProcedure.use(authorizedMiddleware);
