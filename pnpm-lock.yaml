@@ -50,9 +50,6 @@ dependencies:
   '@trpc/server':
     specifier: ^10.37.1
     version: 10.43.6
-  '@types/js-cookie':
-    specifier: ^3.0.6
-    version: 3.0.6
   better-sqlite3:
     specifier: ^9.1.1
     version: 9.1.1
@@ -130,6 +127,9 @@ devDependencies:
   '@types/eslint':
     specifier: ^8.44.2
     version: 8.44.7
+  '@types/js-cookie':
+    specifier: ^3.0.6
+    version: 3.0.6
   '@types/jsonwebtoken':
     specifier: ^9.0.5
     version: 9.0.5
@@ -1612,7 +1612,7 @@ packages:
 
   /@types/js-cookie@3.0.6:
     resolution: {integrity: sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==}
-    dev: false
+    dev: true
 
   /@types/json-schema@7.0.15:
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
