@@ -1,23 +1,23 @@
-import { drizzle as drizzleSqlite } from "drizzle-orm/better-sqlite3";
+import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
+import { env } from "~/env.mjs";
 
-import Database from "better-sqlite3";
-import * as sqliteSchema from "./schema-sqlite";
+import * as mysqlSchema from "./schema-mysql";
 
-// "Connect" to SQLite database (which is basically a local file named `sqlite.db`)
-const sqlite = new Database("sqlite.db");
+const connection = await mysql.createConnection({
+  host: env.DB_HOST,
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
+  database: env.DB_NAME,
+});
 
-// This is Drizzle's typesafe API (typesafety is provided by `schema`)
-export const db = drizzleSqlite(sqlite, { schema: sqliteSchema, logger: true });
+export const db = drizzle(connection, { schema: mysqlSchema, mode: "default" });
 
-/* If you want to use MySQL:
+/* If you want to use SQLite:
 
-    // Need this to connect to the MySQL database
-    const connection = await mysql.createConnection({
-    host: env.DB_HOST,
-    user: env.DB_USER,
-    password: env.DB_PASSWORD,
-    database: env.DB_NAME,
-    });
+    // "Connect" to SQLite database (which is basically a local file named `sqlite.db`)
+    const sqlite = new Database("sqlite.db");
 
-    export const db = drizzle(connection, { schema, mode: "default" });
+    // This is Drizzle's typesafe API (typesafety is provided by `schema`)
+    export const db = drizzleSqlite(sqlite, { schema: sqliteSchema, logger: true });
 */

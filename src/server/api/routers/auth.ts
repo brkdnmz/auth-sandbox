@@ -9,7 +9,7 @@ import {
   pendingEmailVerifications,
   sessions,
   users,
-} from "~/server/db/schema-sqlite";
+} from "~/server/db/schema-mysql";
 import {
   signinFormSchema,
   signupFormSchema,
@@ -75,20 +75,23 @@ export const authRouter = createTRPCRouter({
       // This is why a transaction is used: there are multiple writes -- either both or none should succeed.
       await ctx.db.transaction(async (tx) => {
         // Create a new user with the given credentials.
-        //! `returning` does not work for MySQL: https://orm.drizzle.team/docs/insert#insert-returning
-        // It returns an array of insertions. Since we insert a single user, it's the first element.
-        // Also, the non-null assertion operator `!` is used because it won't be null.
-        const newUser = (
-          await tx
-            .insert(users)
-            .values({
-              email: input.email,
-              username: input.username,
-              password: input.password,
-              fullName: input.fullName,
-            })
-            .returning()
-        )[0]!;
+        // It returns an array of the IDs of the inserted users. Since we insert a single user, it's the first element.
+        //? Previously, I used SQLite which allows the usage of the `returning` method, which returns the inserted user.
+        //? However, `returning` does not work for MySQL: https://orm.drizzle.team/docs/insert#insert-returning
+        const newUserId = (
+          await tx.insert(users).values({
+            email: input.email,
+            username: input.username,
+            password: input.password,
+            fullName: input.fullName,
+          })
+        )[0].insertId;
+
+        // Get the inserted user.
+        //? The non-null assertion operator `!` is used because it won't be null.
+        const newUser = (await tx.query.users.findFirst({
+          where: (users, { eq }) => eq(users.id, newUserId),
+        }))!;
 
         // Save the verification code.
         await tx

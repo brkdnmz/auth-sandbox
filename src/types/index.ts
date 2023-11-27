@@ -1,6 +1,6 @@
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { pendingEmailVerifications, users } from "~/server/db/schema-sqlite";
+import { pendingEmailVerifications, users } from "~/server/db/schema-mysql";
 
 export const signupFormSchema = z.object({
   email: z
