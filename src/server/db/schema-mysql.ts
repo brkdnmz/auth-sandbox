@@ -14,7 +14,7 @@ import {
 export const users = mysqlTable("user", {
   id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
   email: varchar("email", { length: 150 }).unique().notNull(),
-  username: varchar("username", { length: 100 }).notNull(),
+  username: varchar("username", { length: 100 }).unique().notNull(),
   fullName: varchar("fullname", { length: 100 }),
   password: varchar("password", { length: 100 }).notNull(),
   createdAt: timestamp("created_at")
@@ -32,7 +32,7 @@ export const pendingEmailVerifications = mysqlTable(
   "pending_email_verification",
   {
     userId: bigint("user_id", { mode: "number" })
-      .references(() => users.id)
+      .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     verificationCode: varchar("verification_code", { length: 100 })
       .unique()
@@ -43,7 +43,7 @@ export const pendingEmailVerifications = mysqlTable(
 // The table that stores auth tokens.
 export const sessions = mysqlTable("session", {
   userId: bigint("user_id", { mode: "number" })
-    .references(() => users.id)
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   accessToken: text("access_token").notNull(),
   refreshToken: text("refresh_token").notNull(),

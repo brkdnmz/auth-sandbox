@@ -6,6 +6,6 @@ export default {
   dbCredentials: {
     url: "./sqlite.db",
   },
-  tablesFilter: ["auth-sandbox_*"],
+  // tablesFilter: ["auth-sandbox_*"],
   verbose: true,
 } satisfies Config;

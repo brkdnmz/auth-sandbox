@@ -1,7 +1,7 @@
 import { relations, sql } from "drizzle-orm";
-import { int, sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
+import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const sqliteTable = sqliteTableCreator((name) => `auth-sandbox_${name}`);
+// export const sqliteTable = sqliteTableCreator((name) => `auth-sandbox_${name}`);
 
 // User table
 export const users = sqliteTable("user", {

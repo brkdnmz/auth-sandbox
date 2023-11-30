@@ -11,5 +11,4 @@ export default {
     password: env.DB_PASSWORD,
     database: env.DB_NAME,
   },
-  tablesFilter: ["auth-sandbox_*"],
 } satisfies Config;
