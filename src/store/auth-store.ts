@@ -40,8 +40,11 @@ export async function initalizeAuthStore() {
 }
 
 function saveTokens(accessToken: string, refreshToken: string) {
-  Cookies.set("access-token", accessToken);
-  Cookies.set("refresh-token", refreshToken);
+  //? Chrome caps it to 400 days anyway: https://developer.chrome.com/blog/cookie-max-age-expires/
+  const EXPIRES_IN = 1e4; // 10k days
+
+  Cookies.set("access-token", accessToken, { expires: EXPIRES_IN });
+  Cookies.set("refresh-token", refreshToken, { expires: EXPIRES_IN });
 }
 
 function loadAccessToken() {
