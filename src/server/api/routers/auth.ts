@@ -204,10 +204,23 @@ export const authRouter = createTRPCRouter({
     }),
 
   // The route that handles signing out.
-  signOut: authorizedProcedure.mutation(async ({ ctx }) => {
+  signOut: publicProcedureWithTokens.mutation(async ({ ctx }) => {
+    /*
+      Get the user's ID who requested signout from the access token. Then, delete the session with the same user ID from the database.
+
+      This procedure ignores whether:
+        1- The user ID is provided
+        2- The session exists in the database
+    */
+    const userId = ctx.accessToken.decoded?.user.id;
+
+    // This might happen if the access token is not provided, the token is invalid.
+    // Well, do nothing if this is the case.
+    if (userId === undefined) return;
+
     // Just delete the corresponding session from the database, that's it.
-    // Thanks to that, the same access token cannot be used to authorize.
-    return ctx.db.delete(sessions).where(eq(sessions.userId, ctx.user.id));
+    // Thanks to that, the same access token cannot be used to authorize (or the refresh token to obtain new tokens).
+    return ctx.db.delete(sessions).where(eq(sessions.userId, userId));
   }),
 
   // Get the session details (current user).
