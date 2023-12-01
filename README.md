@@ -68,3 +68,4 @@ I believe that discovering new libraries are a huge source of encouragement to l
 - [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken): Generate and decode JWTs.
 - [next-themes](https://www.npmjs.com/package/next-themes): Light/dark modes.
 - [React Icons](https://react-icons.github.io/react-icons/): Self-explanatory.
+- [bcrypt](https://www.npmjs.com/package/bcrypt): Used for safe password encryption.
