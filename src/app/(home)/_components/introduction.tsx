@@ -1,18 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useSession } from "~/hooks/use-session";
 import Hi from "./hi";
 
 // The introduction component -- where I introduce the app.
 export default function Introduction() {
-  const { currentUser } = useSession();
-
   return (
     <>
-      <Hi currentUser={currentUser} />
+      <Hi />
 
-      <h3 className="text-2xl">
+      <h3 className="text-center text-2xl">
         I have built this app just to practice{" "}
         <Link
           href="https://jwt.io/"

@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { FaGithub, FaHome, FaQuestion } from "react-icons/fa";
 import { TRPCReactProvider } from "~/trpc/react";
+import { VerifyEmailAlert } from "./(home)/_components/verify-email-alert";
 import { AuthProvider } from "./_components/auth-provider";
 import { NotImplemented } from "./_components/not-implemented";
 import { SessionTimer } from "./_components/session-timer";
@@ -64,6 +65,8 @@ export default function RootLayout({
                   >
                     <FaHome size={50} />
                   </Link>
+
+                  <VerifyEmailAlert />
 
                   <Link
                     title="GitHub Repo"

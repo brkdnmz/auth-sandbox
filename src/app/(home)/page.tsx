@@ -12,7 +12,7 @@ export default function Home() {
 
   return (
     <main className="grid grow grid-cols-3 items-center">
-      <section className="relative col-start-2 flex flex-col items-center justify-center text-center">
+      <section className="relative col-start-2">
         <AnimatePresence mode="sync">
           {isLoading ? (
             <motion.div
@@ -27,6 +27,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               key="loaded"
+              className="flex flex-col items-center justify-center"
             >
               <Introduction />
               <AuthButtons />
