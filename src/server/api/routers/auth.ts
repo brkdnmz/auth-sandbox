@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -71,6 +72,10 @@ export const authRouter = createTRPCRouter({
         verificationCode = randomUUID();
       }
 
+      // Encrypt the password to store it safely in the database.
+      //! Do not store the plain password!
+      const encryptedPassword = bcrypt.hashSync(input.password, 10);
+
       // A new user will be created AND the verification code will be saved in `pending_email_verifications`.
       // This is why a transaction is used: there are multiple writes -- either both or none should succeed.
       await ctx.db.transaction(async (tx) => {
@@ -82,7 +87,7 @@ export const authRouter = createTRPCRouter({
           await tx.insert(users).values({
             email: input.email,
             username: input.username,
-            password: input.password,
+            password: encryptedPassword,
             fullName: input.fullName,
           })
         )[0].insertId;
@@ -171,20 +176,23 @@ export const authRouter = createTRPCRouter({
   signIn: publicProcedure
     .input(signinFormSchema)
     .mutation(async ({ ctx, input }) => {
-      // Find the user with the given credentials.
+      // Find the user with the email/username.
+      //? Since the stored password is encrypted, we don't add an additional password equality filter.
       const user = await ctx.db.query.users.findFirst({
-        where: (users, { and, or, eq }) =>
-          and(
-            or(
-              eq(users.email, input.emailOrUsername),
-              eq(users.username, input.emailOrUsername),
-            ),
-            eq(users.password, input.password),
+        where: (users, { or, eq }) =>
+          or(
+            eq(users.email, input.emailOrUsername),
+            eq(users.username, input.emailOrUsername),
           ),
       });
 
-      // Such user does not exist, may not sign in.
-      if (!user)
+      // Check if the password matches the actual encrypted password.
+      //? Note that even the email/username might be invalid, and thus, the user might not exist.
+      const isPasswordCorrect =
+        user && bcrypt.compareSync(input.password, user.password);
+
+      // Such user does not exist, or the password is incorrect; may not sign in.
+      if (!user || !isPasswordCorrect)
         throw new TRPCError({
           code: "BAD_REQUEST",
           cause: AuthError.SIGNIN_INVALID_CREDENTIALS,
@@ -192,7 +200,6 @@ export const authRouter = createTRPCRouter({
         });
 
       // Generate the access and refresh tokens, and return them.
-      //! Refresh token is currently unused in the application.
       const accessToken = generateJwt(user, env.ACCESS_TOKEN_DURATION);
       const refreshToken = generateJwt(user, 30 * 24 * 60 * 60); // 1 month
 
@@ -230,10 +237,14 @@ export const authRouter = createTRPCRouter({
     return ctx.user;
   }),
 
+  // Refresh the session using the refresh token, e.g. in case if the access token has been expired.
   refreshSession: publicProcedureWithTokens.mutation(async ({ ctx }) => {
+    // Get the refresh token from the context.
+    //? Note the prodecure used.
     const { raw: rawRefreshToken, decoded: decodedRefreshToken } =
       ctx.refreshToken;
 
+    // Self-explanatory, isn't it? :)
     if (!rawRefreshToken) {
       throw new TRPCError({
         code: "BAD_REQUEST",
@@ -247,6 +258,7 @@ export const authRouter = createTRPCRouter({
       with: { user: true },
     });
 
+    // The session isn't present in the database, which should mean that the refresh token is invalid.
     if (!session) {
       throw new TRPCError({
         code: "BAD_REQUEST",
@@ -254,6 +266,7 @@ export const authRouter = createTRPCRouter({
       });
     }
 
+    // The refresh token has been expired.
     if (!decodedRefreshToken || isTokenExpired(decodedRefreshToken)) {
       throw new TRPCError({
         code: "BAD_REQUEST",
@@ -261,14 +274,17 @@ export const authRouter = createTRPCRouter({
       });
     }
 
+    // Regenerate both the access and refresh tokens.
     const newAccessToken = generateJwt(session.user, env.ACCESS_TOKEN_DURATION);
     const newRefreshToken = generateJwt(session.user, 30 * 24 * 60 * 60); // 1 month
 
+    // Refresh the session.
     await ctx.db
       .update(sessions)
       .set({ accessToken: newAccessToken, refreshToken: newRefreshToken })
       .where(eq(sessions.userId, session.userId));
 
+    // Return new tokens.
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }),
 });
