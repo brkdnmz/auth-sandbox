@@ -1,8 +1,19 @@
-import { Resend } from "resend";
+import { render } from "@react-email/render";
+import nodemailer from "nodemailer";
 import { env } from "~/env.mjs";
 import { VerificationMail } from "./verification-mail";
 
-const resend = new Resend(env.RESEND_API_KEY);
+// https://support.google.com/a/answer/176600
+// (Option 2: Send email with the Gmail SMTP server)
+const nodemailerTransporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: env.GMAIL_ACCOUNT_EMAIL_ADDRESS,
+    pass: env.GMAIL_APP_PASSWORD,
+  },
+});
 
 export function sendVerificationEmail({
   to,
@@ -15,17 +26,17 @@ export function sendVerificationEmail({
   verificationCode: string;
   redirect: string;
 }) {
-  return resend.emails.send({
-    from: env.RESEND_SENDER_EMAIL_ADDRESS,
+  return nodemailerTransporter.sendMail({
+    from: "noreply.authsandbox@gmail.com",
     to: to,
     subject: "Verify Your Email for Auth Sandbox",
-    react: (
+    html: render(
       <VerificationMail
         userEmail={to}
         username={username}
         verificationCode={verificationCode}
         redirect={redirect}
-      />
+      />,
     ),
   });
 }

@@ -8,8 +8,6 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core";
 
-// export const mysqlTable = mysqlTableCreator((name) => `auth-sandbox_${name}`);
-
 // User table
 export const users = mysqlTable("user", {
   id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
@@ -33,7 +31,7 @@ export const pendingEmailVerifications = mysqlTable(
   {
     userId: bigint("user_id", { mode: "number" })
       .references(() => users.id, { onDelete: "cascade" })
-      .notNull(),
+      .primaryKey(),
     verificationCode: varchar("verification_code", { length: 100 })
       .unique()
       .notNull(),

@@ -97,18 +97,20 @@ export const authRouter = createTRPCRouter({
         await tx
           .insert(pendingEmailVerifications)
           .values({ verificationCode, userId: newUser.id });
-      });
 
-      // Lastly, send the verification email to the user's email address.
-      // A link in this email will redirect the user to the following URL:
-      //   http://<server host>:<server port>/auth/verify-email/:verificationCode
-      // E.g.:
-      //   http://localhost:3000/auth/verify-email/ebe35bb2-f1fd-4512-beb4-8676623da204
-      return sendVerificationEmail({
-        to: input.email,
-        username: input.username,
-        verificationCode: verificationCode,
-        redirect: `http://${env.NEXT_HOST}:${env.NEXT_PORT}/auth/verify-email`,
+        //? We are sending the email inside the transaction so that if an error occurs, all changes will be rolled back.
+
+        // Now, send the verification email to the user's email address.
+        // A link in this email will redirect the user to the following URL:
+        //   http://<server host>:<server port>/auth/verify-email/:verificationCode
+        // E.g.:
+        //   http://localhost:3000/auth/verify-email/ebe35bb2-f1fd-4512-beb4-8676623da204
+        await sendVerificationEmail({
+          to: input.email,
+          username: input.username,
+          verificationCode: verificationCode,
+          redirect: `http://${env.NEXT_HOST}:${env.NEXT_PORT}/auth/verify-email`,
+        });
       });
     }),
 

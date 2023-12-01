@@ -41,7 +41,7 @@ What do you think I have been doing since 2021? Continuously learning about web 
   - Node.js with various libraries:
     - Express
     - Prisma
-  
+
 ...and so on. It seemed like I was going a bit out of scope.
 
 Briefly, I have learnt so much about the web, and discovered lots of helpful libraries & frameworks that I wanted to introduce. This app also involves lots of them, which serves my purpose.
@@ -59,8 +59,8 @@ I believe that discovering new libraries are a huge source of encouragement to l
   - [Zustand](https://github.com/pmndrs/zustand): A very lightweight yet powerful state management library. They say Redux is so much complicated. I have only used Zustand so far, as a third-party state management library.
 - [React Hook Form](https://react-hook-form.com/): A form state management library. Works nice with zod.
 - [shadcn/ui](https://ui.shadcn.com/): A dope UI library that provides nice components.
-- [React Email](https://react.email/): Send emails with JSX!
-- [Resend](https://resend.com/): Send emails with ease.
+- [React Email](https://react.email/): Prepare emails with JSX!
+- [nodemailer](https://nodemailer.com/): Send emails with ease. _(Used [Resend](https://resend.com/home) previously)_
 - [js-cookie](https://github.com/js-cookie/js-cookie): Cookie API library.
 - [better-sqlite3](https://github.com/WiseLibs/better-sqlite3): What is needed for SQLite database management.
 - [clsx](https://www.npmjs.com/package/clsx): Makes `className`s better to write.
