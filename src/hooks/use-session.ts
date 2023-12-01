@@ -9,21 +9,7 @@ export function useSession() {
   } = useAuthStore();
 
   const refreshSession = api.auth.refreshSession.useMutation({
-    // onError: (error) => {
-    //   toast({
-    //     title: "Error",
-    //     description: `Failed to refresh the session: ${error.message}`,
-    //     variant: "destructive",
-    //     duration: 2000,
-    //   });
-    // },
     onSuccess: (data) => {
-      // toast({
-      //   title: "Session refreshed",
-      //   description: `Refreshed the auth tokens using the refresh token`,
-      //   variant: "default",
-      //   duration: 5000,
-      // });
       handleTokens(data.accessToken, data.refreshToken);
       void utils.auth.getSession.invalidate();
     },
@@ -38,6 +24,8 @@ export function useSession() {
       return failureCount < 3;
     },
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retryOnMount: false,
   });
 
   return {

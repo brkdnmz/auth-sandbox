@@ -1,15 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { type SessionUser } from "~/types";
+import { useSession } from "~/hooks/use-session";
 import Hi from "./hi";
 
-type IntroductionProps = {
-  currentUser?: SessionUser;
-};
-
 // The introduction component -- where I introduce the app.
-export default function Introduction({ currentUser }: IntroductionProps) {
+export default function Introduction() {
+  const { currentUser } = useSession();
+
   return (
     <>
       <Hi currentUser={currentUser} />
