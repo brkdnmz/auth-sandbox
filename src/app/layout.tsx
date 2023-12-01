@@ -76,7 +76,7 @@ export default function RootLayout({
                 </nav>
               </header>
 
-              <SessionTimer className="text-center" />
+              <SessionTimer className="text-center text-slate-400" />
 
               {children}
 
