@@ -15,7 +15,7 @@ As bolded out, I have struggled a lot trying to understand how the last two thin
 
 So, the universe has carried me to the point where I finally began building a personal project **just to learn about how to solve these problems**.
 
-Moreover, my greater motivation is that I want this app to help those among you who also struggles to understand the logic behind authentication.
+Moreover, my greater motivation is that I want this app to help those among you who also struggle to understand the logic behind authentication.
 
 Therefore, I've been building this app for educational purposes.
 
