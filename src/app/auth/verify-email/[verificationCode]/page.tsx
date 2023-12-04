@@ -43,7 +43,7 @@ export default async function VerifyEmail({
     },
     {
       label: "Registered At",
-      value: new Date(user.createdAt + "Z").toLocaleString(),
+      value: user.createdAt.toLocaleString(),
     },
   ];
 

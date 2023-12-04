@@ -17,7 +17,7 @@ export const users = mysqlTable("user", {
   password: varchar("password", { length: 100 }).notNull(),
   createdAt: timestamp("created_at")
     .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
+    .default(sql`(UTC_TIMESTAMP)`),
 
   // Actually, this is a derived state -- whether a user is verified can be checked by querying the `pending_email_verification` table.
   // However, it feels convenient to add the state to the `user` table also.

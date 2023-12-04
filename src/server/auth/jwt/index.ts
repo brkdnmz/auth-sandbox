@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { AuthToken, authTokenSchema, type User } from "~/types";
+import { authTokenSchema, type AuthToken, type User } from "~/types";
 
 /**
  * Generates a JWT containing the user information.
@@ -37,6 +37,6 @@ export function decodeJwt(token: string) {
   return authTokenSchema.parse(decodedToken);
 }
 
-export function isTokenExpired(token: AuthToken){
+export function isTokenExpired(token: AuthToken) {
   return token.exp <= Math.floor(Date.now() / 1000);
 }

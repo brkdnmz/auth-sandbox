@@ -1,11 +1,8 @@
 import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
 import { create } from "zustand";
-import { api } from "~/trpc/server";
-import { sessionUserSchema, type SessionUser } from "~/types";
 
 type AuthStore = {
-  currentUser?: SessionUser;
   accessToken?: string | null;
   refreshToken?: string | null;
   actions: {
@@ -14,7 +11,6 @@ type AuthStore = {
 };
 
 export const useAuthStore = create<AuthStore>((set) => ({
-  currentUser: undefined,
   accessToken: undefined,
   refreshToken: undefined,
   actions: {
@@ -23,20 +19,15 @@ export const useAuthStore = create<AuthStore>((set) => ({
       set({ accessToken, refreshToken });
       const decryptedAccessToken = jwt.decode(accessToken, { json: true });
       if (!decryptedAccessToken) return;
-      const user = sessionUserSchema.parse(decryptedAccessToken.user);
-      set({ currentUser: user });
     },
   },
 }));
 
-export async function initalizeAuthStore() {
+export function initalizeAuthStore() {
   const accessToken = loadAccessToken();
   const refreshToken = loadRefreshToken();
 
-  try {
-    const user = await api.auth.getSession.query();
-    useAuthStore.setState({ accessToken, refreshToken, currentUser: user });
-  } catch (e) {}
+  useAuthStore.setState({ accessToken, refreshToken });
 }
 
 function saveTokens(accessToken: string, refreshToken: string) {
