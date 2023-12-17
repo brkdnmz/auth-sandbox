@@ -1,6 +1,5 @@
-import { createSelectSchema } from "drizzle-zod";
+import { type User } from "@prisma/client";
 import { z } from "zod";
-import { pendingEmailVerifications, users } from "~/server/db/schema-mysql";
 
 export const signupFormSchema = z.object({
   email: z
@@ -32,18 +31,14 @@ export const signinFormSchema = z.object({
 
 export type SigninForm = z.infer<typeof signinFormSchema>;
 
-export type User = typeof users.$inferSelect;
+export type UserModel = User;
 
-export const verificationCodeSchema = createSelectSchema(
-  pendingEmailVerifications,
-).shape.verificationCode;
-
-export const sessionUserSchema = createSelectSchema(users).pick({
-  id: true,
-  email: true,
-  username: true,
-  fullName: true,
-  isVerified: true,
+export const sessionUserSchema = z.object({
+  id: z.number(),
+  email: z.string().max(150),
+  username: z.string().max(100),
+  fullName: z.string().max(100).nullish(),
+  createdAt: z.coerce.date(),
 });
 
 export const authTokenSchema = z.object({

@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { authTokenSchema, type AuthToken, type User } from "~/types";
+import { authTokenSchema, type AuthToken, type UserModel } from "~/types";
 
 /**
  * Generates a JWT containing the user information.
@@ -7,7 +7,7 @@ import { authTokenSchema, type AuthToken, type User } from "~/types";
  * @param duration How long the token will last (in seconds).
  */
 export function generateJwt(
-  user: Omit<User, "password">,
+  user: Omit<UserModel, "password">,
   duration: number,
 ): string {
   // Take the current time in seconds (since epoch).

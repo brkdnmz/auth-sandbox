@@ -54,7 +54,8 @@ I believe that discovering new libraries are a huge source of encouragement to l
   - [Next.js](https://nextjs.org/) (a React framework): The "skeleton," so to say. Both the frontend and the backend are handled by Next.js.
   - [Tailwind CSS](https://tailwindcss.com/): A wonderful CSS library. Provides lots of utility classes. One of my favorites.
   - [tRPC](https://trpc.io/): APIs could not be more fun! Seriously, one of the most fun libraries to use. I absolutely love it.
-  - [Drizzle ORM](https://orm.drizzle.team/) (an alternative to Prisma): I have some experience with Prisma, and I also wanted to try out Drizzle. I like how it uses 100% TypeScript, unlike Prisma with `.prisma` stuff.
+  - [Prisma](https://www.prisma.io/docs): A dope ORM that makes it easy to manage DBs. I pretty much like it!
+    - I have previously wanted to introduce [Drizzle ORM](https://orm.drizzle.team/) in this project. However, it had so many bugs that I got pretty frustrated. I think they need some time getting Drizzle to a trustable level.
   - [Zod](https://zod.dev/): A validation library. The TypeScript that works in runtime, that's how I see Zod.
   - [Zustand](https://github.com/pmndrs/zustand): A very lightweight yet powerful state management library. They say Redux is so much complicated. I have only used Zustand so far, as a third-party state management library.
 - [React Hook Form](https://react-hook-form.com/): A form state management library. Works nice with zod.

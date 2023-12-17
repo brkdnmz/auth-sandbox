@@ -43,6 +43,7 @@ export default function SignUpPage() {
       email: "",
       username: "",
       password: "",
+      fullName: "",
     },
   });
 

@@ -1,21 +1,11 @@
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
-import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { env } from "~/env.mjs";
 import { sendVerificationEmail } from "~/server/auth/email-verification";
 import { generateJwt, isTokenExpired } from "~/server/auth/jwt";
-import {
-  pendingEmailVerifications,
-  sessions,
-  users,
-} from "~/server/db/schema-mysql";
-import {
-  signinFormSchema,
-  signupFormSchema,
-  verificationCodeSchema,
-} from "~/types";
+import { signinFormSchema, signupFormSchema } from "~/types";
 import {
   authorizedProcedure,
   createTRPCRouter,
@@ -39,8 +29,8 @@ export const authRouter = createTRPCRouter({
     .input(signupFormSchema)
     .mutation(async ({ ctx, input }) => {
       // Find the user with the same email (if any).
-      const user = await ctx.db.query.users.findFirst({
-        where: eq(users.email, input.email),
+      const user = await ctx.db.user.findFirst({
+        where: { email: input.email },
       });
 
       // User exists, cannot sign up an already-registered user.
@@ -62,11 +52,8 @@ export const authRouter = createTRPCRouter({
       // It's very unlikely that an existing code gets created again, but being safe is nice.
       let verificationCode = randomUUID();
       while (
-        await ctx.db.query.pendingEmailVerifications.findFirst({
-          where: eq(
-            pendingEmailVerifications.verificationCode,
-            verificationCode,
-          ),
+        await ctx.db.pendingEmailVerification.findFirst({
+          where: { verificationCode },
         })
       ) {
         verificationCode = randomUUID();
@@ -78,30 +65,17 @@ export const authRouter = createTRPCRouter({
 
       // A new user will be created AND the verification code will be saved in `pending_email_verifications`.
       // This is why a transaction is used: there are multiple writes -- either both or none should succeed.
-      await ctx.db.transaction(async (tx) => {
+      await ctx.db.$transaction(async (tx) => {
         // Create a new user with the given credentials.
-        // It returns an array of the IDs of the inserted users. Since we insert a single user, it's the first element.
-        //? Previously, I used SQLite which allows the usage of the `returning` method, which returns the inserted user.
-        //? However, `returning` does not work for MySQL: https://orm.drizzle.team/docs/insert#insert-returning
-        const newUserId = (
-          await tx.insert(users).values({
+        await tx.user.create({
+          data: {
             email: input.email,
             username: input.username,
             password: encryptedPassword,
             fullName: input.fullName,
-          })
-        )[0].insertId;
-
-        // Get the inserted user.
-        //? The non-null assertion operator `!` is used because it won't be null.
-        const newUser = (await tx.query.users.findFirst({
-          where: (users, { eq }) => eq(users.id, newUserId),
-        }))!;
-
-        // Save the verification code.
-        await tx
-          .insert(pendingEmailVerifications)
-          .values({ verificationCode, userId: newUser.id });
+            pendingEmailVerification: { create: { verificationCode } },
+          },
+        });
 
         //? We are sending the email inside the transaction so that if an error occurs, all changes will be rolled back.
 
@@ -121,19 +95,14 @@ export const authRouter = createTRPCRouter({
 
   // This route verifies the corresponding user's email with the provided verification code.
   verifyEmail: publicProcedure
-    .input(z.object({ verificationCode: verificationCodeSchema }))
+    .input(z.object({ verificationCode: z.string() }))
     .query(async ({ ctx, input }) => {
       // Firstly, find the pending verification corresponding to the provided verification code.
       const pendingEmailVerification =
-        await ctx.db.query.pendingEmailVerifications.findFirst({
-          where: eq(
-            pendingEmailVerifications.verificationCode,
-            input.verificationCode,
-          ),
-          // Also return the user (thanks to the relations defined in the schema file).
-          with: {
-            user: true,
-          },
+        await ctx.db.pendingEmailVerification.findFirst({
+          where: { verificationCode: input.verificationCode },
+          // Also return the user.
+          include: { unverifiedUser: true },
         });
 
       // If there is no such pending verification, then the code must be invalid.
@@ -145,31 +114,15 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      const verifiedUser = pendingEmailVerification.user;
+      const unverifiedUser = pendingEmailVerification.unverifiedUser;
 
-      // The code is valid, so, verify the user and delete the pending verification.
-      // Multiple updates -> transaction!
-      await ctx.db.transaction(async (tx) => {
-        // Verify the user.
-        // Either pendingEmailVerification.userId or verifiedUser.id can be used.
-        await tx
-          .update(users)
-          .set({ isVerified: true })
-          .where(eq(users.id, verifiedUser.id));
-
-        // Delete the pending verification.
-        await tx
-          .delete(pendingEmailVerifications)
-          .where(
-            eq(
-              pendingEmailVerifications.verificationCode,
-              input.verificationCode,
-            ),
-          );
+      // Delete the pending email verification (the user has been verified).
+      await ctx.db.pendingEmailVerification.delete({
+        where: { verificationCode: input.verificationCode },
       });
 
       // Return the user that has been verified.
-      return pendingEmailVerification.user;
+      return unverifiedUser;
     }),
 
   // The route that handles signing in.
@@ -178,12 +131,13 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // Find the user with the email/username.
       //? Since the stored password is encrypted, we don't add an additional password equality filter.
-      const user = await ctx.db.query.users.findFirst({
-        where: (users, { or, eq }) =>
-          or(
-            eq(users.email, input.emailOrUsername),
-            eq(users.username, input.emailOrUsername),
-          ),
+      const user = await ctx.db.user.findFirst({
+        where: {
+          OR: [
+            { email: input.emailOrUsername },
+            { username: input.emailOrUsername },
+          ],
+        },
       });
 
       // Check if the password matches the actual encrypted password.
@@ -204,10 +158,12 @@ export const authRouter = createTRPCRouter({
       const refreshToken = generateJwt(user, 30 * 24 * 60 * 60); // 1 month
 
       // Record the session into the database.
-      // TODO A signed-in user should not be able to sign in again.
-      await ctx.db
-        .insert(sessions)
-        .values({ accessToken, refreshToken, userId: user.id });
+      // TODO A signed-in user should not be able to sign in again. (Or is it not a problem?)
+      await ctx.db.session.upsert({
+        where: { userId: user.id },
+        create: { accessToken, refreshToken, userId: user.id },
+        update: { accessToken, refreshToken },
+      });
 
       return { accessToken, refreshToken };
     }),
@@ -229,7 +185,7 @@ export const authRouter = createTRPCRouter({
 
     // Just delete the corresponding session from the database, that's it.
     // Thanks to that, the same access token cannot be used to authorize (or the refresh token to obtain new tokens).
-    return ctx.db.delete(sessions).where(eq(sessions.userId, userId));
+    return ctx.db.session.delete({ where: { userId } });
   }),
 
   // Get the session details (current user).
@@ -253,9 +209,9 @@ export const authRouter = createTRPCRouter({
     }
 
     // Find the session with the provided refresh token.
-    const session = await ctx.db.query.sessions.findFirst({
-      where: (sessions, { eq }) => eq(sessions.refreshToken, rawRefreshToken),
-      with: { user: true },
+    const session = await ctx.db.session.findFirst({
+      where: { refreshToken: rawRefreshToken },
+      include: { user: true },
     });
 
     // The session isn't present in the database, which should mean that the refresh token is invalid.
@@ -279,10 +235,10 @@ export const authRouter = createTRPCRouter({
     const newRefreshToken = generateJwt(session.user, 30 * 24 * 60 * 60); // 1 month
 
     // Refresh the session.
-    await ctx.db
-      .update(sessions)
-      .set({ accessToken: newAccessToken, refreshToken: newRefreshToken })
-      .where(eq(sessions.userId, session.userId));
+    await ctx.db.session.update({
+      where: { userId: session.userId },
+      data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
+    });
 
     // Return new tokens.
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
