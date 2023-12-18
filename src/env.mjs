@@ -10,13 +10,14 @@ export const env = createEnv({
     NEXT_HOST: z.string(),
     NEXT_PORT: z.string(),
     DB_HOST: z.string(),
-    DB_PORT: z.string(),
+    DB_PORT: z.coerce.number(),
     DB_USER: z.string(),
     DB_PASSWORD: z.string(),
     DB_NAME: z.string(),
     GMAIL_ACCOUNT_EMAIL_ADDRESS: z.string(),
     GMAIL_APP_PASSWORD: z.string(),
     ACCESS_TOKEN_DURATION: z.coerce.number(),
+    REFRESH_TOKEN_DURATION: z.coerce.number(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -46,6 +47,7 @@ export const env = createEnv({
     GMAIL_ACCOUNT_EMAIL_ADDRESS: process.env.GMAIL_ACCOUNT_EMAIL_ADDRESS,
     GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD,
     ACCESS_TOKEN_DURATION: process.env.ACCESS_TOKEN_DURATION,
+    REFRESH_TOKEN_DURATION: process.env.REFRESH_TOKEN_DURATION,
     NODE_ENV: process.env.NODE_ENV,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },

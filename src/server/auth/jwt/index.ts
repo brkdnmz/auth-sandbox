@@ -1,5 +1,10 @@
 import jwt from "jsonwebtoken";
-import { authTokenSchema, type AuthToken, type UserModel } from "~/types";
+import {
+  authTokenSchema,
+  sessionUserSchema,
+  type AuthToken,
+  type UserModel,
+} from "~/types";
 
 /**
  * Generates a JWT containing the user information.
@@ -18,7 +23,7 @@ export function generateJwt(
     {
       iat: dateNow,
       exp: dateNow + duration,
-      user,
+      user: sessionUserSchema.parse(user), // Drop the `password` attribute.
     },
     "secret",
   );

@@ -155,7 +155,7 @@ export const authRouter = createTRPCRouter({
 
       // Generate the access and refresh tokens, and return them.
       const accessToken = generateJwt(user, env.ACCESS_TOKEN_DURATION);
-      const refreshToken = generateJwt(user, 30 * 24 * 60 * 60); // 1 month
+      const refreshToken = generateJwt(user, env.REFRESH_TOKEN_DURATION);
 
       // Record the session into the database.
       // TODO A signed-in user should not be able to sign in again. (Or is it not a problem?)
@@ -232,7 +232,10 @@ export const authRouter = createTRPCRouter({
 
     // Regenerate both the access and refresh tokens.
     const newAccessToken = generateJwt(session.user, env.ACCESS_TOKEN_DURATION);
-    const newRefreshToken = generateJwt(session.user, 30 * 24 * 60 * 60); // 1 month
+    const newRefreshToken = generateJwt(
+      session.user,
+      env.REFRESH_TOKEN_DURATION,
+    );
 
     // Refresh the session.
     await ctx.db.session.update({
