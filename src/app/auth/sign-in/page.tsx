@@ -18,6 +18,7 @@ import {
 } from "~/app/_components/ui/form";
 import { Input } from "~/app/_components/ui/input";
 import { useToast } from "~/app/_components/ui/use-toast";
+import { useRevalidateSession } from "~/hooks/use-revalidate-session";
 import { useAuthStore } from "~/store/auth-store";
 import { api } from "~/trpc/react";
 import { signinFormSchema, type SigninForm } from "~/types";
@@ -41,7 +42,6 @@ export default function SignInPage() {
   const {
     actions: { handleTokens },
   } = useAuthStore();
-
   const form = useForm<SigninForm>({
     resolver: zodResolver(signinFormSchema),
     defaultValues: {
@@ -49,8 +49,13 @@ export default function SignInPage() {
       password: "",
     },
   });
+  const revalidateSession = useRevalidateSession();
 
-  const signInMutation = api.auth.signIn.useMutation();
+  const signInMutation = api.auth.signIn.useMutation({
+    onSuccess: () => {
+      void revalidateSession();
+    },
+  });
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {

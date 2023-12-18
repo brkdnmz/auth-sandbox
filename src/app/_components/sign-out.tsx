@@ -1,12 +1,13 @@
 "use client";
 
+import { useRevalidateSession } from "~/hooks/use-revalidate-session";
 import { api } from "~/trpc/react";
 import { Button } from "./ui/button";
 import { toast } from "./ui/use-toast";
 
 // A button that triggers the signout process.
 export function SignOut() {
-  const utils = api.useUtils();
+  const revalidateSession = useRevalidateSession();
   const signOutMutation = api.auth.signOut.useMutation({
     onSuccess: () => {
       toast({
@@ -25,7 +26,7 @@ export function SignOut() {
           duration: 2000,
         });
       }
-      void utils.invalidate();
+      void revalidateSession();
     },
   });
 

@@ -1,20 +1,18 @@
 import { useAuthStore } from "~/store/auth-store";
 import { api } from "~/trpc/react";
+import { useRevalidateSession } from "./use-revalidate-session";
 
 export function useSession() {
-  const utils = api.useUtils();
-
   const {
     actions: { handleTokens },
   } = useAuthStore();
-
+  const revalidateSession = useRevalidateSession();
   const refreshSession = api.auth.refreshSession.useMutation({
     onSuccess: (data) => {
       handleTokens(data.accessToken, data.refreshToken);
-      void utils.auth.getSession.invalidate();
+      void revalidateSession();
     },
   });
-
   const sessionUser = api.auth.getSession.useQuery(undefined, {
     retry: (failureCount, error) => {
       if (error.data?.code === "UNAUTHORIZED") {

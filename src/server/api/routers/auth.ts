@@ -189,8 +189,13 @@ export const authRouter = createTRPCRouter({
   }),
 
   // Get the session details (current user).
-  getSession: authorizedProcedure.query(({ ctx }) => {
-    return ctx.user;
+  getSession: authorizedProcedure.query(async ({ ctx }) => {
+    // The user is verified ony if no record related to that user is present in `pendingEmailVerification`.
+    const isVerified = !(await ctx.db.pendingEmailVerification.count({
+      where: { userId: ctx.user.id },
+    }));
+
+    return { ...ctx.user, isVerified };
   }),
 
   // Refresh the session using the refresh token, e.g. in case if the access token has been expired.
