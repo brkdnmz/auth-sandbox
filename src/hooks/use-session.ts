@@ -17,8 +17,8 @@ export function useSession() {
     retry: (failureCount, error) => {
       if (error.data?.code === "UNAUTHORIZED") {
         refreshSession.mutate();
+        return false;
       }
-      if (error.data?.code === "UNAUTHORIZED") return false;
       return failureCount < 3;
     },
     refetchOnWindowFocus: false,

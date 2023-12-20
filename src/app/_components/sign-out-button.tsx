@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { toast } from "./ui/use-toast";
 
 // A button that triggers the signout process.
-export function SignOut() {
+export function SignOutButton() {
   const revalidateSession = useRevalidateSession();
   const signOutMutation = api.auth.signOut.useMutation({
     onSuccess: () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SignOut } from "~/app/_components/sign-out";
+import { SignOutButton } from "~/app/_components/sign-out-button";
 import { Button } from "~/app/_components/ui/button";
 import { useSession } from "~/hooks/use-session";
 
@@ -22,7 +22,7 @@ export function AuthButtons() {
           </Button>
         </>
       )}
-      {currentUser && <SignOut />}
+      {currentUser && <SignOutButton />}
     </div>
   );
 }
