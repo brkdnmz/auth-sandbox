@@ -1,10 +1,10 @@
 # Auth Sandbox
 
-The first app that I implemented actual authentication lifecycle using JWTs (JSON Web Token).
+The first app that I implemented the actual authentication lifecycle using JWTs (JSON Web Token).
 
 ## Motivation — Why? 🤔
 
-Since I've first met and tried web development in late 2021, authentication has been my weakest point. After 2 years of avoidance, I finally decided to take it serious to figure out and understand how exactly authentication works; how to:
+Since I first met and tried web development in late 2021, authentication has been my weakest point. After 2 years of avoidance, I finally decided to take it seriously to figure out and understand how exactly authentication works; how to:
 
 - Sign up?
 - Sign in?
@@ -27,7 +27,7 @@ What do you think I have been doing since 2021? Continuously learning about web 
 
 - Basics:
   - HTML, CSS, JavaScript
-  - How web works
+  - How the web works
   - Data flow:
     - What "client" and "server" exactly are
     - Where data are stored (databases)
@@ -44,11 +44,11 @@ What do you think I have been doing since 2021? Continuously learning about web 
 
 ...and so on. It seemed like I was going a bit out of scope.
 
-Briefly, I have learnt so much about the web, and discovered lots of helpful libraries & frameworks that I wanted to introduce. This app also involves lots of them, which serves my purpose.
+Briefly, I have learned so much about the web and discovered lots of helpful libraries & frameworks that I wanted to introduce. This app also involves lots of them, which serves my purpose.
 
 ## Tech Stack
 
-I believe that discovering new libraries are a huge source of encouragement to learn more about web development. At least, it's the case for me. Therefore, I hope those used in this app inspires you guys:
+I believe that discovering new libraries is a huge source of encouragement to learn more about web development. At least, that's the case for me. Therefore, I hope those used in this app inspire you guys:
 
 - [T3 Stack](https://create.t3.gg/)
   - [Next.js](https://nextjs.org/) (a React framework): The "skeleton," so to say. Both the frontend and the backend are handled by Next.js.
@@ -57,7 +57,7 @@ I believe that discovering new libraries are a huge source of encouragement to l
   - [Prisma](https://www.prisma.io/docs): A dope ORM that makes it easy to manage DBs. I pretty much like it!
     - I have previously wanted to introduce [Drizzle ORM](https://orm.drizzle.team/) in this project. However, it had so many bugs that I got pretty frustrated. I think they need some time getting Drizzle to a trustable level.
   - [Zod](https://zod.dev/): A validation library. The TypeScript that works in runtime, that's how I see Zod.
-  - [Zustand](https://github.com/pmndrs/zustand): A very lightweight yet powerful state management library. They say Redux is so much complicated. I have only used Zustand so far, as a third-party state management library.
+  - [Zustand](https://github.com/pmndrs/zustand): A very lightweight yet powerful state management library. They say Redux is so much more complicated. I have only used Zustand so far, as a third-party state management library.
 - [React Hook Form](https://react-hook-form.com/): A form state management library. Works nice with zod.
 - [shadcn/ui](https://ui.shadcn.com/): A dope UI library that provides nice components.
 - [React Email](https://react.email/): Prepare emails with JSX!
