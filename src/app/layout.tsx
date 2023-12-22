@@ -6,7 +6,6 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { AuthProvider } from "./_components/auth-provider";
 import { Footer } from "./_components/footer";
 import { Navbar } from "./_components/navbar";
-import { SessionTimer } from "./_components/session-timer";
 import { ThemeProvider } from "./_components/ui/theme-provider";
 import { Toaster } from "./_components/ui/toaster";
 
@@ -37,8 +36,6 @@ export default function RootLayout({
           >
             <AuthProvider>
               <Navbar />
-
-              <SessionTimer className="text-center text-slate-400" />
 
               {children}
 

@@ -32,7 +32,7 @@ export function SessionTimer(props: HTMLProps<HTMLDivElement>) {
     <div className={props.className}>
       {secondsLeft > 0 ? (
         <>
-          Session expires in <Timer seconds={secondsLeft} />
+          <Timer seconds={secondsLeft} />
         </>
       ) : (
         <TooltipProvider>

@@ -18,9 +18,8 @@ import {
 } from "~/app/_components/ui/form";
 import { Input } from "~/app/_components/ui/input";
 import { useToast } from "~/app/_components/ui/use-toast";
-import { useRevalidateSession } from "~/hooks/use-revalidate-session";
+import { useSession } from "~/hooks/use-session";
 import { useAuthStore } from "~/store/auth-store";
-import { api } from "~/trpc/react";
 import { signinFormSchema, type SigninForm } from "~/types";
 
 const fields: readonly {
@@ -49,18 +48,11 @@ export default function SignInPage() {
       password: "",
     },
   });
-  const revalidateSession = useRevalidateSession();
-
-  const signInMutation = api.auth.signIn.useMutation({
-    onSuccess: () => {
-      void revalidateSession();
-    },
-  });
+  const { signIn } = useSession();
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      const { accessToken, refreshToken } =
-        await signInMutation.mutateAsync(data);
+      const { accessToken, refreshToken } = await signIn.mutateAsync(data);
       handleTokens(accessToken, refreshToken);
       toast({
         title: "Success",
@@ -68,7 +60,7 @@ export default function SignInPage() {
         duration: 1000,
       });
       setTimeout(() => {
-        void router.push("/");
+        router.push("/");
       }, 500);
     } catch (error) {
       toast({
@@ -113,11 +105,11 @@ export default function SignInPage() {
             <Button
               type="submit"
               variant={"secondary"}
-              disabled={signInMutation.isLoading || signInMutation.isSuccess}
+              disabled={signIn.isLoading || signIn.isSuccess}
             >
-              {signInMutation.isLoading ? (
+              {signIn.isLoading ? (
                 <Loader2 className="animate-spin" />
-              ) : !signInMutation.isSuccess ? (
+              ) : !signIn.isSuccess ? (
                 "Submit"
               ) : (
                 <FaCheck />

@@ -60,7 +60,7 @@ export default function SignUpPage() {
         duration: 3000,
       });
       setTimeout(() => {
-        void router.push("/");
+        router.push("/");
       }, 1000);
     } catch (error) {
       toast({

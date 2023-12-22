@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { FaGithub, FaQuestion } from "react-icons/fa6";
+import { FaGithub, FaQuestion, FaUsers } from "react-icons/fa6";
 import { VerifyEmailAlert } from "../(home)/_components/verify-email-alert";
 import { NotImplemented } from "./not-implemented";
+import { SessionTimer } from "./session-timer";
 
 export function Navbar() {
   return (
@@ -13,22 +14,32 @@ export function Navbar() {
       >
         <h1 className="text-2xl font-extrabold text-slate-300">Auth Sandbox</h1>
       </Link>
-      <nav className="flex grow items-center justify-end gap-5">
+      <nav className="flex grow items-center justify-end gap-10">
         <VerifyEmailAlert />
 
+        <SessionTimer className="text-center text-2xl text-slate-400" />
+
         <Link
-          title="GitHub Repo"
+          href="/users"
+          title="See all users"
+          className="opacity-50 transition-opacity hover:opacity-100"
+        >
+          <FaUsers size={30} />
+        </Link>
+
+        <Link
           href="https://github.com/brkdnmz/auth-sandbox"
+          title="GitHub Repo"
           target="_blank"
           className="opacity-50 transition-opacity hover:opacity-100"
         >
-          <FaGithub size={50} />
+          <FaGithub size={30} />
         </Link>
 
         <NotImplemented>
           <button disabled>
             <FaQuestion
-              size={47}
+              size={33}
               className="opacity-50 transition-opacity hover:opacity-100"
             />
           </button>
