@@ -104,17 +104,13 @@ This part is crucial for the app to run seamlessly. Create a copy of the `.env.e
 
 - `NEXT_HOST` (defaults to `localhost`): Specifies the host that the app will run at. This variable doesn't actually configure the host. You might not touch it at all.
 
-- `NEXT_PORT` (defaults to `3000`): Specifies the port. Like `NEXT_HOST`, it doesn't configure the port but rather serves it. To change the actual port, open `package.json` and use the `-p` flag to change the following scripts:
+- `NEXT_PORT` (defaults to `3000`): Specifies the port. Like `NEXT_HOST`, it doesn't configure the port but rather serves it. To change the actual port, open `package.json` and use the `-p` flag to change the following scripts as follows:
 
-  ```
-    ...
+  ```json
     "scripts": {
-      ...
       "dev": "next dev -p 5678",
       "start": "next start -p 5678"
-      ...
     }
-    ...
   ```
 
   The value `5678` is given as an example. You may use another suitable value.
