@@ -1,6 +1,6 @@
 # Auth Sandbox
 
-The first app that I implemented the actual authentication lifecycle using JWTs (JSON Web Token).
+The first app in which I implemented the actual authentication lifecycle using JWTs (JSON Web Token).
 
 ## Motivation — Why? 🤔
 
@@ -8,7 +8,7 @@ Since I first met and tried web development in late 2021, authentication has bee
 
 - Sign up?
 - Sign in?
-- **Know about the user has signed in?**
+- **Know if the user has signed in?**
 - **Persist the session?**
 
 As bolded out, I have struggled a lot trying to understand how the last two things are done.
@@ -58,7 +58,7 @@ I believe that discovering new libraries is a huge source of encouragement to le
     - I have previously wanted to introduce [Drizzle ORM](https://orm.drizzle.team/) in this project. However, it had so many bugs that I got pretty frustrated. I think they need some time getting Drizzle to a trustable level.
   - [Zod](https://zod.dev/): A validation library. The TypeScript that works in runtime, that's how I see Zod.
   - [Zustand](https://github.com/pmndrs/zustand): A very lightweight yet powerful state management library. They say Redux is so much more complicated. I have only used Zustand so far, as a third-party state management library.
-- [React Hook Form](https://react-hook-form.com/): A form state management library. Works nice with zod.
+- [React Hook Form](https://react-hook-form.com/): A form state management library. Works nice with Zod.
 - [shadcn/ui](https://ui.shadcn.com/): A dope UI library that provides nice components.
 - [React Email](https://react.email/): Prepare emails with JSX!
 - [nodemailer](https://nodemailer.com/): Send emails with ease. _(Used [Resend](https://resend.com/home) previously)_
@@ -70,3 +70,71 @@ I believe that discovering new libraries is a huge source of encouragement to le
 - [next-themes](https://www.npmjs.com/package/next-themes): Light/dark modes.
 - [React Icons](https://react-icons.github.io/react-icons/): Self-explanatory.
 - [bcrypt](https://www.npmjs.com/package/bcrypt): Used for safe password encryption.
+
+## Getting Started
+
+Alright, alright — here comes the fun part!
+
+### Prerequisites
+
+#### NodeJS & pnpm
+
+1. Firstly, you should have **NodeJS** installed. You may download the installer [here](https://nodejs.org/en).
+
+2. Then, you need to install the **pnpm** package manager. You may use the following commands:
+    - Windows (PowerShell): `iwr https://get.pnpm.io/install.ps1 -useb | iex`
+    - Linux (POSIX): `curl -fsSL https://get.pnpm.io/install.sh | sh -`
+
+    For other alternatives and more details, see [pnpm docs](https://pnpm.io/installation). I'm a Windows user, and I preferred the Choco option.
+
+#### PostgreSQL
+
+To persist data, an app should use a database system. For this purpose, I used PostgreSQL in this project. So, with defaults, you should install and configure PostgreSQL, too. You can download it [here](https://www.postgresql.org/download/).
+
+### Package Installation
+
+After you satisfy these prerequisites, clone this repo to your local system. Then, all you need is the following command to finalize the installation phase:
+  - `pnpm i`
+
+This command checks the `package.json` and `pnpm-lock.yaml` to analyze all package dependencies and install all required packages with proper versions. See the details [here](https://pnpm.io/cli/install).
+
+### Environment Variables
+
+This part is crucial for the app to run seamlessly. Create a copy of the `.env.example` file and name it as `.env`. Then, configure the following environment variables:
+
+- `NEXT_HOST` (defaults to `localhost`): Specifies the host that the app will run at. This variable doesn't actually configure the host. You might not touch it at all.
+
+- `NEXT_PORT` (defaults to `3000`): Specifies the port. Like `NEXT_HOST`, it doesn't configure the port but rather serves it. To change the actual port, open `package.json` and use the `-p` flag to change the following scripts:
+
+  ```
+    ...
+    "scripts": {
+      ...
+      "dev": "next dev -p 5678",
+      "start": "next start -p 5678"
+      ...
+    }
+    ...
+  ```
+
+  The value `5678` is given as an example. You may use another suitable value.
+
+  As an alternative, you may not touch the scripts at all, and provide the port when running them:
+    - `pnpm dev -p 3452`
+    - `pnpm start -p 3452`
+
+- `DB_HOST` (defaults to `localhost`): The host that the database server (PostgreSQL) is running at. If you run everything locally, this may remain unchanged.
+- `DB_PORT` (defaults to `5432`): The port that the database server is listening at. PostgreSQL's default installation sets the port to 5432.
+- Database credentials: `DB_USER`, `DB_PASSWORD` (default to `postgres` and `123456`): PostgreSQL's installer wants you to provide them anyway. Configure them accordingly.
+- `DB_NAME` (defaults to `authsandbox`): The database's name. You may change it however you want.
+- `DATABASE_URL`: This variable is generated using the `DB_`-prefixed variables above. Configure them, not this.
+
+- `GMAIL_ACCOUNT_EMAIL_ADDRESS` and `GMAIL_APP_PASSWORD`: The app sends verification emails using Gmail's SMTP. Please refer to the comments in `.env.example`.
+
+- `ACCESS_TOKEN_DURATION` and `REFRESH_TOKEN_DURATION`: The lifetime of the auth tokens. They default to 5 minutes and 1 month, respectively.
+
+## Run It!
+
+After you complete the steps above, you should be able to run the app. First, run `pnpm build` to build the app, then run `pnpm start` to run the app.
+
+If you want to modify the code and see the results immediately, you may choose to run the app in development mode: `pnpm dev`.
