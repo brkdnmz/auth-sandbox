@@ -59,9 +59,7 @@ export default function SignUpPage() {
         }`,
         duration: 3000,
       });
-      setTimeout(() => {
-        router.push("/");
-      }, 1000);
+      router.push("/");
     } catch (error) {
       toast({
         title: "Error",

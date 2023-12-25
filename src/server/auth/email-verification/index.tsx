@@ -1,3 +1,4 @@
+import { Html } from "@react-email/html";
 import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
 import { env } from "~/env.mjs";
@@ -31,12 +32,14 @@ export function sendVerificationEmail({
     to: to,
     subject: "Verify Your Email for Auth Sandbox",
     html: render(
-      <VerificationMail
-        userEmail={to}
-        username={username}
-        verificationCode={verificationCode}
-        redirect={redirect}
-      />,
+      <Html>
+        <VerificationMail
+          userEmail={to}
+          username={username}
+          verificationCode={verificationCode}
+          redirect={redirect}
+        />
+      </Html>,
     ),
   });
 }
