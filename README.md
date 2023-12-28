@@ -103,9 +103,7 @@ This command checks the `package.json` and `pnpm-lock.yaml` to analyze all packa
 This part is crucial for the app to run seamlessly. Create a copy of the `.env.example` file and name it as `.env`. Then, configure the following environment variables:
 
 - `NEXT_HOST` (defaults to `localhost`): Specifies the host that the app will run at. This variable doesn't actually configure the host. You might not touch it at all.
-
 - `NEXT_PORT` (defaults to `3000`): Specifies the port. Like `NEXT_HOST`, it doesn't configure the port but rather serves it. To change the actual port, open `package.json` and use the `-p` flag to change the following scripts as follows:
-
   ```json
     "scripts": {
       "dev": "next dev -p 5678",
@@ -118,16 +116,20 @@ This part is crucial for the app to run seamlessly. Create a copy of the `.env.e
   As an alternative, you may not touch the scripts at all, and provide the port when running them:
     - `pnpm dev -p 3452`
     - `pnpm start -p 3452`
-
 - `DB_HOST` (defaults to `localhost`): The host that the database server (PostgreSQL) is running at. If you run everything locally, this may remain unchanged.
 - `DB_PORT` (defaults to `5432`): The port that the database server is listening at. PostgreSQL's default installation sets the port to 5432.
 - Database credentials: `DB_USER`, `DB_PASSWORD` (default to `postgres` and `123456`): PostgreSQL's installer wants you to provide them anyway. Configure them accordingly.
 - `DB_NAME` (defaults to `authsandbox`): The database's name. You may change it however you want.
 - `DATABASE_URL`: This variable is generated using the `DB_`-prefixed variables above. Configure them, not this.
-
 - `GMAIL_ACCOUNT_EMAIL_ADDRESS` and `GMAIL_APP_PASSWORD`: The app sends verification emails using Gmail's SMTP. Please refer to the comments in `.env.example`.
-
 - `ACCESS_TOKEN_DURATION` and `REFRESH_TOKEN_DURATION`: The lifetime of the auth tokens. They default to 5 minutes and 1 month, respectively.
+
+After configuring the environment variables, you should setup the Prisma stuff. Just run the following two commands:
+```bash
+pnpm db:generate
+pnpm db:push
+```
+Then, you should be good to go.
 
 ## Run It!
 
