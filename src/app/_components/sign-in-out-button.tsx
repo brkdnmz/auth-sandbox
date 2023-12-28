@@ -21,6 +21,7 @@ export function SignInOutButton() {
         session.isLoading && "opacity-30",
         !session.isLoading && "opacity-70 transition-opacity hover:opacity-100",
       )}
+      title={session.currentUser ? "Sign Out" : "Sign In"}
     >
       {session.currentUser ? (
         <LogOut onClick={() => session.signOut.mutate()} size={30} />
