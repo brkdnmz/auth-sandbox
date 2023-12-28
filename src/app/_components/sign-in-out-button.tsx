@@ -1,32 +1,32 @@
 "use client";
 
-import { Loader2, LogIn, LogOut } from "lucide-react";
+import clsx from "clsx";
+import { LogIn, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "~/hooks/use-session";
-import { Button } from "./ui/button";
 
 export function SignInOutButton() {
   const session = useSession();
   const router = useRouter();
 
-  return session.isLoading ? (
-    <Loader2 className="animate-spin" />
-  ) : (
-    <Button
-      variant="ghost"
-      asChild
-      size="icon"
+  return (
+    <button
+      disabled={session.isLoading}
       onClick={() =>
         session.currentUser
           ? session.signOut.mutate()
           : router.push("/auth/sign-in")
       }
+      className={clsx(
+        session.isLoading && "opacity-30",
+        !session.isLoading && "opacity-70 transition-opacity hover:opacity-100",
+      )}
     >
       {session.currentUser ? (
-        <LogOut onClick={() => session.signOut.mutate()} />
+        <LogOut onClick={() => session.signOut.mutate()} size={30} />
       ) : (
-        <LogIn />
+        <LogIn size={30} />
       )}
-    </Button>
+    </button>
   );
 }

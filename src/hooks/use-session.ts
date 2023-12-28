@@ -11,11 +11,13 @@ export function useSession() {
 
   // https://github.com/TanStack/query/issues/2304
   // Multiple useMutations don't share the same state...
-  const isRefreshing = useIsMutating({
-    // This considers all loading mutations instead of only loading refreshSession mutations.
-    // Well, not the most perfect solution, but couldn't figure out any other :(
-    predicate: (mutation) => mutation.state.status === "loading",
-  });
+  const isRefreshing = Boolean(
+    useIsMutating({
+      // This considers all loading mutations instead of only loading refreshSession mutations.
+      // Well, not the most perfect solution, but couldn't figure out any other :(
+      predicate: (mutation) => mutation.state.status === "loading",
+    }),
+  );
 
   const session = api.auth.getSession.useQuery(undefined, {
     retry: (failureCount, error) => {
