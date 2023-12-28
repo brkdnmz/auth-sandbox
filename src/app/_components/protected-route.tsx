@@ -5,6 +5,14 @@ import { useEffect, useState, type PropsWithChildren } from "react";
 import { useSession } from "~/hooks/use-session";
 import { useToast } from "./ui/use-toast";
 
+/*
+  What a shitty situation in dev mode: https://github.com/vercel/next.js/issues/39492
+  The issue is, in dev mode, this component unnecessarily unmounts and remounts,
+  causing `session.refresh()` to execute twice!
+
+  Okay, I thought this was a bug-causing issue. Well, it's not.
+  The bug I thought this was causing was actually caused by an irrelevant code.
+*/
 export function ProtectedRoute({ children }: PropsWithChildren) {
   const [isSessionRefreshed, setIsSessionRefreshed] = useState(false);
   const session = useSession();

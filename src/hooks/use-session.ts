@@ -1,3 +1,4 @@
+import { useIsMutating } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
 import { useToast } from "~/app/_components/ui/use-toast";
 import { useAuthStore } from "~/store/auth-store";
@@ -7,10 +8,19 @@ export function useSession() {
   const signIn = useSignIn();
   const signOut = useSignOut();
   const refreshSession = useRefreshSession();
+
+  // https://github.com/TanStack/query/issues/2304
+  // Multiple useMutations don't share the same state...
+  const isRefreshing = useIsMutating({
+    // This considers all loading mutations instead of only loading refreshSession mutations.
+    // Well, not the most perfect solution, but couldn't figure out any other :(
+    predicate: (mutation) => mutation.state.status === "loading",
+  });
+
   const session = api.auth.getSession.useQuery(undefined, {
     retry: (failureCount, error) => {
       if (error.data?.code === "UNAUTHORIZED") {
-        refreshSession.mutate();
+        if (!isRefreshing) refreshSession.mutate();
         return false;
       }
       return failureCount < 3;
@@ -26,20 +36,15 @@ export function useSession() {
   return useMemo(
     () => ({
       ...session,
-      isLoading: refreshSession.isLoading || session.isLoading, // This overwrite saved my life, oh man...
+      isLoading: session.isLoading || isRefreshing, // This overwrite saved my life, oh man...
       currentUser: isSessionValid ? session.data : undefined,
       signIn,
       signOut,
-      refresh: refreshSession.mutate, // Inspired by this: https://next-auth.js.org/getting-started/client#updating-the-session
+      refresh: () => {
+        if (!isRefreshing) refreshSession.mutate();
+      }, // Inspired by this: https://next-auth.js.org/getting-started/client#updating-the-session
     }),
-    [
-      isSessionValid,
-      refreshSession.isLoading,
-      refreshSession.mutate,
-      session,
-      signIn,
-      signOut,
-    ],
+    [isRefreshing, isSessionValid, refreshSession, session, signIn, signOut],
   );
 }
 
@@ -91,10 +96,6 @@ function useRefreshSession() {
 
 function useRevalidateSession() {
   const trpcUtils = api.useUtils();
-
-  // TODO: This runs because of `trpcUtils.client` so frequently, couldn't figure out why...
-  // Doesn't cause unnecessary rerenders tho.
-
   const revalidateSession = useCallback(() => {
     void trpcUtils.auth.getSession.invalidate();
   }, [trpcUtils.auth.getSession]);

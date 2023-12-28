@@ -3,6 +3,7 @@ import { FaGithub, FaQuestion, FaUsers } from "react-icons/fa6";
 import { VerifyEmailAlert } from "../(home)/_components/verify-email-alert";
 import { NotImplemented } from "./not-implemented";
 import { SessionTimer } from "./session-timer";
+import { SignInOutButton } from "./sign-in-out-button";
 
 export function Navbar() {
   return (
@@ -18,6 +19,8 @@ export function Navbar() {
         <VerifyEmailAlert />
 
         <SessionTimer className="text-center text-2xl text-slate-400" />
+
+        <SignInOutButton />
 
         <Link
           href="/users"
