@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { FaCheck } from "react-icons/fa";
 import { Button } from "~/app/_components/ui/button";
-import { Card, CardTitle } from "~/app/_components/ui/card";
+import { Card } from "~/app/_components/ui/card";
 import {
   Form,
   FormControl,
@@ -21,6 +21,7 @@ import { useToast } from "~/app/_components/ui/use-toast";
 import { useSession } from "~/hooks/use-session";
 import { useAuthStore } from "~/store/auth-store";
 import { signinFormSchema, type SigninForm } from "~/types";
+import { SignInOrUpTitle } from "../_components/sign-in-or-up-title";
 
 const fields: readonly {
   name: keyof SigninForm;
@@ -76,7 +77,7 @@ export default function SignInPage() {
 
   return (
     <Card className="grow px-8 py-4">
-      <CardTitle className="text-center text-4xl font-bold">Sign In</CardTitle>
+      <SignInOrUpTitle signIn />
       <Form {...form}>
         <form onSubmit={onSubmit} className="grid gap-4">
           {fields.map(({ name, label, placeholder }) => (
@@ -110,7 +111,7 @@ export default function SignInPage() {
               {signIn.isLoading ? (
                 <Loader2 className="animate-spin" />
               ) : !signIn.isSuccess ? (
-                "Submit"
+                "Let me in!"
               ) : (
                 <FaCheck />
               )}
